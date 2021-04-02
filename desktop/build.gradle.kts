@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "dev.atsushieno"
-version = "1.0"
+version = "1.0.0"
 
 repositories {
     mavenLocal()
@@ -26,8 +26,6 @@ kotlin {
             dependencies {
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
-                // FIXME: Should this be required here?
-                implementation("dev.atsushieno:ktmidi-jvm:0.1.7")
             }
         }
         val jvmTest by getting

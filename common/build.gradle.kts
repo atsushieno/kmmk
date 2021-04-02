@@ -31,7 +31,7 @@ kotlin {
                 api(compose.material)
                 api(compose.ui)
                 // FIXME: shouldn't there be nicer way to simply specify ktmidi API here instead of per-plat sections?
-                implementation("dev.atsushieno:ktmidi-kotlinMultiplatform:0.1.5")
+                implementation("dev.atsushieno:ktmidi-kotlinMultiplatform:0.1.9")
             }
         }
         val commonTest by getting
@@ -39,8 +39,7 @@ kotlin {
             dependencies {
                 api("androidx.appcompat:appcompat:1.2.0")
                 api("androidx.core:core-ktx:1.3.2")
-                // FIXME: Should this be jvm-specific?
-                implementation("dev.atsushieno:ktmidi-jvm:0.1.7")
+                implementation("dev.atsushieno:ktmidi-jvm:0.1.9")
             }
         }
         val androidTest by getting {
@@ -50,8 +49,8 @@ kotlin {
         }
         val desktopMain by getting {
             dependencies {
-                // FIXME: Should this be jvm-specific?
-                implementation("dev.atsushieno:ktmidi-jvm:0.1.7")
+                implementation("dev.atsushieno:ktmidi-jvm:0.1.9")
+                implementation("dev.atsushieno:ktmidi-jvm-desktop:0.1.9")
             }
         }
         val desktopTest by getting
