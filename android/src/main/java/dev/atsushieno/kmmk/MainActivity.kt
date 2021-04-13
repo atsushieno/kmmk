@@ -8,7 +8,7 @@ import dev.atsushieno.ktmidi.AndroidMidiAccess
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        midiAccess = AndroidMidiAccess(applicationContext)
+        model.midiDeviceManager.midiAccess = AndroidMidiAccess(applicationContext)
         setContent {
             App()
         }

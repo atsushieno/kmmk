@@ -27,24 +27,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.atsushieno.ktmidi.EmptyMidiAccess
 import dev.atsushieno.ktmidi.MidiAccess
+import dev.atsushieno.ktmidi.MidiInput
+import dev.atsushieno.ktmidi.MidiOutput
 import dev.atsushieno.ktmidi.MidiPortDetails
 
 @Composable
 fun App() {
     MaterialTheme {
-        val topDrawerState = remember { DrawerState(DrawerValue.Closed) }
-        val topDrawerContent : @Composable ColumnScope.() -> Unit = @Composable {
-        }
-
         Column {
             val instrumentOnClick = {
             }
             val presetsOnClick = {
             }
-            val midiInputOnClick = {
+            val midiInputOnClick: (String) -> Unit = {
             }
-            val midiOutputOnClick = {
+            val midiOutputOnClick: (String) -> Unit = {
             }
             MidiSettingsView(instrumentOnClick = instrumentOnClick, presetsOnClick = presetsOnClick, midiInputOnClick = midiInputOnClick, midiOutputOnClick = midiOutputOnClick)
             MidiKeyboard()
@@ -55,49 +54,61 @@ fun App() {
 }
 
 @Composable
-fun MidiSettingsView(midiInputOnClick: () -> Unit,
-                     midiOutputOnClick: () -> Unit,
+fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
+                     midiOutputOnClick: (String) -> Unit,
                      instrumentOnClick: () -> Unit,
                      presetsOnClick: () -> Unit) {
     Column {
         Row {
-            val midiInputDialogState = remember { mutableStateOf(false) }
-            val midiOutputDialogState = remember { mutableStateOf(false) }
+            var midiInputDialogState by remember { mutableStateOf(false) }
+            var midiOutputDialogState by remember { mutableStateOf(false) }
 
-            if (midiInputDialogState.value) {
+            if (midiInputDialogState) {
                 // show dialog
                 Column {
-                    val onClick : () -> Unit = { midiInputDialogState.value = false }
-                    if (model.midiInputPorts.any())
-                        for (d in model.midiInputPorts)
-                            Text(modifier = Modifier.clickable(onClick = onClick), text = d.name ?: "(unnamed)")
+                    val onClick: (String) -> Unit = { id ->
+                        if (id.isNotEmpty()) {
+                            model.midiDeviceManager.midiInputDeviceId = id
+                            midiInputOnClick(id)
+                            midiInputDialogState = false
+                        }
+                    }
+                    if (model.midiDeviceManager.midiInputPorts.any())
+                        for (d in model.midiDeviceManager.midiInputPorts)
+                            Text(modifier = Modifier.clickable(onClick = { onClick(d.id) }), text = d.name ?: "(unnamed)")
                     else
-                        Text(modifier = Modifier.clickable(onClick = onClick), text = "(no MIDI input)")
+                        Text(modifier = Modifier.clickable(onClick =  { onClick("") }), text = "(no MIDI input)")
                 }
             } else {
                 Card(
-                    modifier = Modifier.clickable(onClick = { midiInputDialogState.value = true }).padding(12.dp),
+                    modifier = Modifier.clickable(onClick = { midiInputDialogState = true }).padding(12.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
                 ) {
-                    Text("-- Select MIDI input --")
+                    Text(model.midiDeviceManager.midiInput?.details?.name ?: "-- Select MIDI input --")
                 }
             }
 
-            if (midiOutputDialogState.value) {
+            if (midiOutputDialogState) {
                 Column {
-                    val onClick = { midiOutputDialogState.value = false }
-                    if (model.midiOutputPorts.any())
-                        for (d in model.midiOutputPorts)
-                            Text(modifier = Modifier.clickable (onClick = onClick), text = d.name ?: "(unnamed)")
+                    val onClick: (String) -> Unit = { id ->
+                        if (id.isNotEmpty()) {
+                            model.midiDeviceManager.midiOutputDeviceId = id
+                            midiOutputOnClick(id)
+                            midiOutputDialogState = false
+                        }
+                    }
+                    if (model.midiDeviceManager.midiOutputPorts.any())
+                        for (d in model.midiDeviceManager.midiOutputPorts)
+                            Text(modifier = Modifier.clickable (onClick = { onClick(d.id)}), text = d.name ?: "(unnamed)")
                     else
-                        Text(modifier = Modifier.clickable(onClick = onClick), text = "(no MIDI output)")
+                        Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(no MIDI output)")
                 }
             } else {
                 Card(
-                    modifier = Modifier.clickable(onClick = { midiOutputDialogState.value = true }).padding(12.dp),
+                    modifier = Modifier.clickable(onClick = { midiOutputDialogState = true }).padding(12.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
                 ) {
-                    Text("-- Select MIDI output --")
+                    Text(model.midiDeviceManager.midiOutput?.details?.name ?: "-- Select MIDI output --")
                 }
             }
         }
@@ -147,12 +158,40 @@ fun playMml() {
     println("play MML clicked")
 }
 
-lateinit var midiAccess : MidiAccess
-
 object model {
+    val midiDeviceManager = MidiDeviceManager()
+}
+
+class MidiDeviceManager {
+    private val emptyMidiAccess = EmptyMidiAccess()
+    // FIXME: fix API async-ness in ktmidi
+    private val emptyMidiInput = emptyMidiAccess.openInputAsync(emptyMidiAccess.inputs.first().id)
+    private val emptyMidiOutput = emptyMidiAccess.openOutputAsync(emptyMidiAccess.outputs.first().id)
+    private var midiAccessValue: MidiAccess = emptyMidiAccess
+
+    var midiAccess: MidiAccess
+        get() = midiAccessValue
+        set(value) {
+            midiAccessValue = value
+            midiInput = emptyMidiInput
+            midiOutput = emptyMidiOutput
+        }
 
     val midiInputPorts : Iterable<MidiPortDetails>
         get() = midiAccess.inputs
     val midiOutputPorts : Iterable<MidiPortDetails>
         get() = midiAccess.outputs
+
+    var midiInputDeviceId: String?
+        get() = midiInput?.details?.id
+        set(id) {
+            midiInput = if (id != null) midiAccessValue.openInputAsync(id) else emptyMidiInput
+        }
+    var midiOutputDeviceId: String?
+        get() = midiOutput?.details?.id
+        set(id) {
+            midiOutput = if (id != null) midiAccessValue.openOutputAsync(id) else emptyMidiOutput
+        }
+    var midiInput: MidiInput? = null
+    var midiOutput: MidiOutput? = null
 }
