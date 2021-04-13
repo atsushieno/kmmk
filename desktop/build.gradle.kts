@@ -3,7 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "0.4.0-build177"
+    id("org.jetbrains.compose") version "0.4.0-build180"
 }
 
 group = "dev.atsushieno"
@@ -26,6 +26,8 @@ kotlin {
             dependencies {
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
+                implementation("dev.atsushieno:ktmidi-jvm:0.2.3")
+                implementation("dev.atsushieno:ktmidi-jvm-desktop:0.2.3")
             }
         }
         val jvmTest by getting
@@ -34,7 +36,7 @@ kotlin {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "dev.atsushieno.kmmk.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "jvm"

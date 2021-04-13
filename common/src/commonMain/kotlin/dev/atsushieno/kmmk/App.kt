@@ -147,7 +147,7 @@ fun playMml() {
     println("play MML clicked")
 }
 
-expect val midiAccess : MidiAccess
+lateinit var midiAccess : MidiAccess
 
 object model {
 
