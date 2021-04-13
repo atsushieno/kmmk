@@ -29,9 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.atsushieno.ktmidi.EmptyMidiAccess
 import dev.atsushieno.ktmidi.MidiAccess
+import dev.atsushieno.ktmidi.MidiEvent
+import dev.atsushieno.ktmidi.MidiEventType
 import dev.atsushieno.ktmidi.MidiInput
 import dev.atsushieno.ktmidi.MidiOutput
 import dev.atsushieno.ktmidi.MidiPortDetails
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun App() {
@@ -46,7 +51,11 @@ fun App() {
             val midiOutputOnClick: (String) -> Unit = {
             }
             MidiSettingsView(instrumentOnClick = instrumentOnClick, presetsOnClick = presetsOnClick, midiInputOnClick = midiInputOnClick, midiOutputOnClick = midiOutputOnClick)
-            MidiKeyboard()
+            MidiKeyboard(onNote = { key ->
+                GlobalScope.launch {
+                    model.playNote(key)
+                }
+            })
             Controllers()
             MmlPad()
         }
@@ -160,6 +169,22 @@ fun playMml() {
 
 object model {
     val midiDeviceManager = MidiDeviceManager()
+
+    var defaultVelocity : Byte = 100
+
+    suspend fun playNote(key: Int) {
+        val bytes = byteArrayOf(MidiEventType.NOTE_ON, key.toByte(), defaultVelocity)
+        midiDeviceManager.midiOutput?.send(bytes, 0, 3, 0)
+        delay(1000)
+        bytes[0] = MidiEventType.NOTE_OFF
+        bytes[2] = 0
+        midiDeviceManager.midiOutput?.send(bytes, 0, 3, 0)
+    }
+
+    fun sendProgramChange(program: Byte) {
+        val bytes = byteArrayOf(MidiEventType.PROGRAM, program)
+        midiDeviceManager.midiOutput?.send(bytes, 0, 2, 0)
+    }
 }
 
 class MidiDeviceManager {
