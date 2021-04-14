@@ -52,7 +52,6 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 implementation("dev.atsushieno:ktmidi-jvm:$ktmidi_version")
-                implementation("dev.atsushieno:ktmidi-jvm-desktop:0.1.12")
             }
         }
         val desktopTest by getting

@@ -27,7 +27,7 @@ kotlin {
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
                 implementation("dev.atsushieno:ktmidi-jvm:0.2.3")
-                implementation("dev.atsushieno:ktmidi-jvm-desktop:0.2.3")
+                implementation("dev.atsushieno:ktmidi-jvm-desktop:0.2.3.3")
             }
         }
         val jvmTest by getting
