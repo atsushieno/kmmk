@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.atsushieno.ktmidi.PortCreatorContext
 import dev.atsushieno.ktmidi.EmptyMidiAccess
 import dev.atsushieno.ktmidi.MidiAccess
 import dev.atsushieno.ktmidi.MidiEvent
@@ -175,15 +176,18 @@ object model {
     suspend fun playNote(key: Int) {
         val bytes = byteArrayOf(MidiEventType.NOTE_ON, key.toByte(), defaultVelocity)
         midiDeviceManager.midiOutput?.send(bytes, 0, 3, 0)
+        midiDeviceManager.virtualMidiOutput?.send(bytes, 0, 3, 0)
         delay(1000)
         bytes[0] = MidiEventType.NOTE_OFF
         bytes[2] = 0
         midiDeviceManager.midiOutput?.send(bytes, 0, 3, 0)
+        midiDeviceManager.virtualMidiOutput?.send(bytes, 0, 3, 0)
     }
 
     fun sendProgramChange(program: Byte) {
         val bytes = byteArrayOf(MidiEventType.PROGRAM, program)
         midiDeviceManager.midiOutput?.send(bytes, 0, 2, 0)
+        midiDeviceManager.virtualMidiOutput?.send(bytes, 0, 2, 0)
     }
 }
 
@@ -200,6 +204,11 @@ class MidiDeviceManager {
             midiAccessValue = value
             midiInput = emptyMidiInput
             midiOutput = emptyMidiOutput
+            try {
+                val pc = PortCreatorContext(manufacturer = "Kmmk project", applicationName = "Kmmk", portName = "Kmmk Virtual Port", version = "1.0")
+                GlobalScope.launch { virtualMidiOutput = midiAccessValue.createVirtualInputSender(pc) }
+            } catch(ex: Exception) {
+            }
         }
 
     val midiInputPorts : Iterable<MidiPortDetails>
@@ -219,4 +228,5 @@ class MidiDeviceManager {
         }
     var midiInput: MidiInput? = null
     var midiOutput: MidiOutput? = null
+    var virtualMidiOutput: MidiOutput? = null
 }
