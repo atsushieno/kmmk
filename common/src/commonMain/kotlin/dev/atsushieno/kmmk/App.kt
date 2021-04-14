@@ -85,14 +85,18 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
                         if (id.isNotEmpty()) {
                             model.midiDeviceManager.midiInputDeviceId = id
                             midiInputOnClick(id)
-                            midiInputDialogState = false
                         }
+                        midiInputDialogState = false
                     }
                     if (model.midiDeviceManager.midiInputPorts.any())
                         for (d in model.midiDeviceManager.midiInputPorts)
-                            Text(modifier = Modifier.clickable(onClick = { onClick(d.id) }), text = d.name ?: "(unnamed)")
+                            Text(
+                                modifier = Modifier.clickable(onClick = { onClick(d.id) }),
+                                text = d.name ?: "(unnamed)"
+                            )
                     else
-                        Text(modifier = Modifier.clickable(onClick =  { onClick("") }), text = "(no MIDI input)")
+                        Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(no MIDI input)")
+                    Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(Cancel)")
                 }
             } else {
                 Card(
@@ -109,14 +113,18 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
                         if (id.isNotEmpty()) {
                             model.midiDeviceManager.midiOutputDeviceId = id
                             midiOutputOnClick(id)
-                            midiOutputDialogState = false
                         }
+                        midiOutputDialogState = false
                     }
                     if (model.midiDeviceManager.midiOutputPorts.any())
                         for (d in model.midiDeviceManager.midiOutputPorts)
-                            Text(modifier = Modifier.clickable (onClick = { onClick(d.id)}), text = d.name ?: "(unnamed)")
+                            Text(
+                                modifier = Modifier.clickable(onClick = { onClick(d.id) }),
+                                text = d.name ?: "(unnamed)"
+                            )
                     else
                         Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(no MIDI output)")
+                    Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(Cancel)")
                 }
             } else {
                 Card(
