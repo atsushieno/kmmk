@@ -33,8 +33,13 @@ import dev.atsushieno.ktmidi.MidiAccess
 import dev.atsushieno.ktmidi.MidiEvent
 import dev.atsushieno.ktmidi.MidiEventType
 import dev.atsushieno.ktmidi.MidiInput
+import dev.atsushieno.ktmidi.MidiMusic
 import dev.atsushieno.ktmidi.MidiOutput
+import dev.atsushieno.ktmidi.MidiPlayer
 import dev.atsushieno.ktmidi.MidiPortDetails
+import dev.atsushieno.mugene.MmlCompiler
+import dev.atsushieno.mugene.MmlCompilerConsole
+import dev.atsushieno.mugene.MmlException
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -147,29 +152,43 @@ fun Controllers() {
 
 }
 
+fun playMml(mml: String) {
+    val mmlModified = "0 $mml"
+    val compiler = MmlCompiler.create()
+    model.compilationDiagnostics.clear()
+    compiler.report = { verbosity, location, message -> model.compilationDiagnostics.add("$verbosity $location: $message") }
+    try {
+        val music = compiler.compile(false, mmlModified)
+        model.registerMusic(music)
+    } catch(ex: MmlException) {
+        println(ex)
+    }
+}
+
 @Composable
 fun MmlPad() {
-    var mmlState by remember { mutableStateOf("mml") }
-    val mmlOnClick = { playMml() }
+    var mmlState by remember { mutableStateOf("") }
+    val mmlOnClick = { s:String -> playMml(s) }
 
     Row {
-        Button(onClick = mmlOnClick, modifier = Modifier.align(Alignment.CenterVertically)) {
+        Button(onClick = { mmlOnClick(mmlState) }, modifier = Modifier.align(Alignment.CenterVertically)) {
             Text("Run")
         }
         OutlinedTextField(
             value = mmlState,
+            placeholder = { Text("enter MML text here (no need for track id)") },
             onValueChange = { mmlState = it },
             modifier = Modifier.fillMaxWidth().padding(12.dp).height(100.dp),
         )
     }
 }
 
-fun playMml() {
-    println("play MML clicked")
-}
-
 object model {
     val midiDeviceManager = MidiDeviceManager()
+
+    val compilationDiagnostics = mutableListOf<String>()
+    val musics = mutableListOf<MidiMusic>()
+    val midiPlayers = mutableListOf<MidiPlayer>()
 
     var defaultVelocity : Byte = 100
 
@@ -188,6 +207,14 @@ object model {
         val bytes = byteArrayOf(MidiEventType.PROGRAM, program)
         midiDeviceManager.midiOutput?.send(bytes, 0, 2, 0)
         midiDeviceManager.virtualMidiOutput?.send(bytes, 0, 2, 0)
+    }
+
+    fun registerMusic(music: MidiMusic) {
+        val output = midiDeviceManager.midiOutput ?: return
+        val player = MidiPlayer(music, output)
+        midiPlayers.add(player)
+        player.finished = Runnable { midiPlayers.remove(player) }
+        player.play()
     }
 }
 

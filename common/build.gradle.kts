@@ -10,6 +10,7 @@ group = "dev.atsushieno"
 version = "1.0"
 
 val ktmidi_version = "0.2.3"
+val mugene_version = "0.2.2"
 
 repositories {
     mavenLocal()
@@ -34,6 +35,7 @@ kotlin {
                 api(compose.ui)
                 // FIXME: shouldn't there be nicer way to simply specify ktmidi API here instead of per-plat sections?
                 implementation("dev.atsushieno:ktmidi-kotlinMultiplatform:$ktmidi_version")
+                implementation("dev.atsushieno:mugene-kotlinMultiplatform:$mugene_version")
             }
         }
         val commonTest by getting
@@ -42,6 +44,7 @@ kotlin {
                 api("androidx.appcompat:appcompat:1.2.0")
                 api("androidx.core:core-ktx:1.3.2")
                 implementation("dev.atsushieno:ktmidi-android:$ktmidi_version")
+                implementation("dev.atsushieno:mugene-android:$mugene_version")
             }
         }
         val androidTest by getting {
@@ -52,6 +55,7 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 implementation("dev.atsushieno:ktmidi-jvm:$ktmidi_version")
+                implementation("dev.atsushieno:mugene-jvm:$mugene_version")
             }
         }
         val desktopTest by getting
