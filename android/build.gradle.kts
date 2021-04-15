@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.atsushieno"
-version = "1.0"
+version = "0.1.0"
 
 repositories {
     mavenLocal()
@@ -17,7 +17,7 @@ repositories {
 dependencies {
     implementation(project(":common"))
     implementation("androidx.activity:activity-compose:1.3.0-alpha06")
-    implementation("dev.atsushieno:ktmidi-android:0.2.3")
+    implementation("dev.atsushieno:ktmidi-android:0.2.4")
 }
 
 android {

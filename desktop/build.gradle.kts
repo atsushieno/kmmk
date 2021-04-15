@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "dev.atsushieno"
-version = "1.0.0"
+version = "0.1.0"
 
 repositories {
     mavenLocal()
@@ -26,8 +26,8 @@ kotlin {
             dependencies {
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
-                implementation("dev.atsushieno:ktmidi-jvm:0.2.3")
-                implementation("dev.atsushieno:ktmidi-jvm-desktop:0.2.3.3")
+                implementation("dev.atsushieno:ktmidi-jvm:0.2.4")
+                implementation("dev.atsushieno:ktmidi-jvm-desktop:0.2.4")
             }
         }
         val jvmTest by getting
