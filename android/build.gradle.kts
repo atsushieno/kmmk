@@ -17,7 +17,7 @@ repositories {
 dependencies {
     implementation(project(":common"))
     implementation("androidx.activity:activity-compose:1.3.0-alpha06")
-    implementation("dev.atsushieno:ktmidi-android:0.2.4")
+    implementation("dev.atsushieno:ktmidi-android:0.2.7")
 }
 
 android {

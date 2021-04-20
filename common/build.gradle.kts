@@ -9,14 +9,21 @@ plugins {
 group = "dev.atsushieno"
 version = "0.1.0"
 
-val ktmidi_version = "0.2.4"
-val mugene_version = "0.2.3"
+val ktmidi_version = "0.2.7"
+val mugene_version = "0.2.6"
 
 repositories {
     mavenLocal()
     mavenCentral()
     maven("https://jitpack.io")
     google()
+    maven {
+        url = uri("https://maven.pkg.github.com/atsushieno/ktmidi")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.token") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 kotlin {
@@ -34,8 +41,8 @@ kotlin {
                 api(compose.material)
                 api(compose.ui)
                 // FIXME: shouldn't there be nicer way to simply specify ktmidi API here instead of per-plat sections?
-                implementation("dev.atsushieno:ktmidi-kotlinMultiplatform:$ktmidi_version")
-                implementation("dev.atsushieno:mugene-kotlinMultiplatform:$mugene_version")
+                implementation("dev.atsushieno:ktmidi:$ktmidi_version")
+                implementation("dev.atsushieno:mugene:$mugene_version")
             }
         }
         val commonTest by getting
@@ -43,8 +50,8 @@ kotlin {
             dependencies {
                 api("androidx.appcompat:appcompat:1.2.0")
                 api("androidx.core:core-ktx:1.3.2")
-                implementation("dev.atsushieno:ktmidi-android:$ktmidi_version")
-                implementation("dev.atsushieno:mugene-android:$mugene_version")
+                //implementation("dev.atsushieno:ktmidi-android:$ktmidi_version")
+                //implementation("dev.atsushieno:mugene-android:$mugene_version")
             }
         }
         val androidTest by getting {

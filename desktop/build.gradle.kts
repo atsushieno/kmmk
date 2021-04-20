@@ -26,8 +26,8 @@ kotlin {
             dependencies {
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
-                implementation("dev.atsushieno:ktmidi-jvm:0.2.4")
-                implementation("dev.atsushieno:ktmidi-jvm-desktop:0.2.4")
+                implementation("dev.atsushieno:ktmidi-jvm:0.2.7")
+                implementation("dev.atsushieno:ktmidi-jvm-desktop:0.2.7")
             }
         }
         val jvmTest by getting

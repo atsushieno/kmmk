@@ -191,6 +191,7 @@ fun MmlPad() {
     }
 }
 
+
 object model {
     val midiDeviceManager = MidiDeviceManager()
 
@@ -224,44 +225,4 @@ object model {
         player.finished = Runnable { midiPlayers.remove(player) }
         player.play()
     }
-}
-
-class MidiDeviceManager {
-    private val emptyMidiAccess = EmptyMidiAccess()
-    // FIXME: fix API async-ness in ktmidi
-    private val emptyMidiInput = emptyMidiAccess.openInputAsync(emptyMidiAccess.inputs.first().id)
-    private val emptyMidiOutput = emptyMidiAccess.openOutputAsync(emptyMidiAccess.outputs.first().id)
-    private var midiAccessValue: MidiAccess = emptyMidiAccess
-
-    var midiAccess: MidiAccess
-        get() = midiAccessValue
-        set(value) {
-            midiAccessValue = value
-            midiInput = emptyMidiInput
-            midiOutput = emptyMidiOutput
-            try {
-                val pc = PortCreatorContext(manufacturer = "Kmmk project", applicationName = "Kmmk", portName = "Kmmk Virtual Port", version = "1.0")
-                GlobalScope.launch { virtualMidiOutput = midiAccessValue.createVirtualInputSender(pc) }
-            } catch(ex: Exception) {
-            }
-        }
-
-    val midiInputPorts : Iterable<MidiPortDetails>
-        get() = midiAccess.inputs
-    val midiOutputPorts : Iterable<MidiPortDetails>
-        get() = midiAccess.outputs
-
-    var midiInputDeviceId: String?
-        get() = midiInput?.details?.id
-        set(id) {
-            midiInput = if (id != null) midiAccessValue.openInputAsync(id) else emptyMidiInput
-        }
-    var midiOutputDeviceId: String?
-        get() = midiOutput?.details?.id
-        set(id) {
-            midiOutput = if (id != null) midiAccessValue.openOutputAsync(id) else emptyMidiOutput
-        }
-    var midiInput: MidiInput? = null
-    var midiOutput: MidiOutput? = null
-    var virtualMidiOutput: MidiOutput? = null
 }
