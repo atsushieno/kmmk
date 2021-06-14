@@ -1,23 +1,17 @@
 package dev.atsushieno.kmmk
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
 import androidx.compose.material.Card
-import androidx.compose.material.DrawerState
-import androidx.compose.material.DrawerValue
+import androidx.compose.material.Checkbox
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Scaffold
-import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,21 +21,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.atsushieno.ktmidi.PortCreatorContext
-import dev.atsushieno.ktmidi.EmptyMidiAccess
-import dev.atsushieno.ktmidi.MidiAccess
-import dev.atsushieno.ktmidi.MidiEvent
-import dev.atsushieno.ktmidi.MidiEventType
-import dev.atsushieno.ktmidi.MidiInput
-import dev.atsushieno.ktmidi.MidiMusic
-import dev.atsushieno.ktmidi.MidiOutput
-import dev.atsushieno.ktmidi.MidiPlayer
-import dev.atsushieno.ktmidi.MidiPortDetails
+import dev.atsushieno.ktmidi.MidiCIProtocolType
 import dev.atsushieno.mugene.MmlCompiler
-import dev.atsushieno.mugene.MmlCompilerConsole
 import dev.atsushieno.mugene.MmlException
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -62,7 +45,6 @@ fun App() {
                     model.playNote(key)
                 }
             })
-            Controllers()
             MmlPad()
         }
     }
@@ -155,11 +137,6 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
     }
 }
 
-@Composable
-fun Controllers() {
-
-}
-
 fun playMml(mml: String) {
     val mmlModified = "0 $mml"
     val compiler = MmlCompiler.create()
@@ -177,7 +154,15 @@ fun playMml(mml: String) {
 fun MmlPad() {
     var mmlState by remember { mutableStateOf("") }
     val mmlOnClick = { s:String -> playMml(s) }
+    var midi2EnabledState by remember { mutableStateOf(model.midiProtocol == MidiCIProtocolType.MIDI2) }
 
+    Row {
+        Checkbox(checked = midi2EnabledState, onCheckedChange = { value ->
+            midi2EnabledState = value
+            model.midiProtocol = if (value) MidiCIProtocolType.MIDI2 else MidiCIProtocolType.MIDI1
+        })
+        Text("Send MIDI 2.0 UMPs")
+    }
     Row {
         Button(onClick = { mmlOnClick(mmlState) }, modifier = Modifier.align(Alignment.CenterVertically)) {
             Text("Run")
@@ -192,37 +177,3 @@ fun MmlPad() {
 }
 
 
-object model {
-    val midiDeviceManager = MidiDeviceManager()
-
-    val compilationDiagnostics = mutableListOf<String>()
-    val musics = mutableListOf<MidiMusic>()
-    val midiPlayers = mutableListOf<MidiPlayer>()
-
-    var defaultVelocity : Byte = 100
-
-    suspend fun playNote(key: Int) {
-        val bytes = byteArrayOf(MidiEventType.NOTE_ON, key.toByte(), defaultVelocity)
-        midiDeviceManager.midiOutput?.send(bytes, 0, 3, 0)
-        midiDeviceManager.virtualMidiOutput?.send(bytes, 0, 3, 0)
-        delay(1000)
-        bytes[0] = MidiEventType.NOTE_OFF
-        bytes[2] = 0
-        midiDeviceManager.midiOutput?.send(bytes, 0, 3, 0)
-        midiDeviceManager.virtualMidiOutput?.send(bytes, 0, 3, 0)
-    }
-
-    fun sendProgramChange(program: Byte) {
-        val bytes = byteArrayOf(MidiEventType.PROGRAM, program)
-        midiDeviceManager.midiOutput?.send(bytes, 0, 2, 0)
-        midiDeviceManager.virtualMidiOutput?.send(bytes, 0, 2, 0)
-    }
-
-    fun registerMusic(music: MidiMusic) {
-        val output = midiDeviceManager.midiOutput ?: return
-        val player = MidiPlayer(music, output)
-        midiPlayers.add(player)
-        player.finished = Runnable { midiPlayers.remove(player) }
-        player.play()
-    }
-}
