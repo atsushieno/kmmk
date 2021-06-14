@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.compose") version "0.4.0-build180"
+    id("org.jetbrains.compose") version "0.5.0-build224"
     id("com.android.application")
     kotlin("android")
 }
@@ -16,16 +16,16 @@ repositories {
 
 dependencies {
     implementation(project(":common"))
-    implementation("androidx.activity:activity-compose:1.3.0-alpha06")
-    implementation("dev.atsushieno:ktmidi-android:0.2.7")
+    implementation("androidx.activity:activity-compose:1.3.0-beta01")
+    implementation("dev.atsushieno:ktmidi-android:0.2.8.5")
 }
 
 android {
-    compileSdkVersion(29)
+    compileSdkVersion(30)
     defaultConfig {
         applicationId = "dev.atsushieno.kmmk"
         minSdkVersion(24)
-        targetSdkVersion(29)
+        targetSdkVersion(30)
         versionCode = 1
         versionName = "1.0"
     }

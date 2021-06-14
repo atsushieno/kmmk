@@ -3,14 +3,14 @@ import org.jetbrains.compose.compose
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "0.4.0-build180"
+    id("org.jetbrains.compose") version "0.5.0-build224"
 }
 
 group = "dev.atsushieno"
 version = "0.1.0"
 
-val ktmidi_version = "0.2.7"
-val mugene_version = "0.2.6"
+val ktmidi_version = "0.2.8.5"
+val mugene_version = "0.2.7"
 
 repositories {
     mavenLocal()
@@ -43,20 +43,19 @@ kotlin {
                 // FIXME: shouldn't there be nicer way to simply specify ktmidi API here instead of per-plat sections?
                 implementation("dev.atsushieno:ktmidi:$ktmidi_version")
                 implementation("dev.atsushieno:mugene:$mugene_version")
+                implementation("io.ktor:ktor-io:1.4.0")
             }
         }
         val commonTest by getting
         val androidMain by getting {
             dependencies {
-                api("androidx.appcompat:appcompat:1.2.0")
-                api("androidx.core:core-ktx:1.3.2")
-                //implementation("dev.atsushieno:ktmidi-android:$ktmidi_version")
-                //implementation("dev.atsushieno:mugene-android:$mugene_version")
+                api("androidx.appcompat:appcompat:1.3.0")
+                api("androidx.core:core-ktx:1.5.0")
             }
         }
         val androidTest by getting {
             dependencies {
-                implementation("junit:junit:4.13")
+                implementation("junit:junit:4.13.2")
             }
         }
         val desktopMain by getting {
