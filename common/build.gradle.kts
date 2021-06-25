@@ -9,8 +9,8 @@ plugins {
 group = "dev.atsushieno"
 version = "0.1.0"
 
-val ktmidi_version = "0.2.8.5"
-val mugene_version = "0.2.7"
+val ktmidi_version = "0.3.1"
+val mugene_version = "0.2.8"
 
 repositories {
     mavenLocal()

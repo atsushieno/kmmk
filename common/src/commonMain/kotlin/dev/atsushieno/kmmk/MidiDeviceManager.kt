@@ -51,6 +51,7 @@ class MidiDeviceManager {
         set(id) {
             runBlocking {
                 midiInput = if (id != null) midiAccessValue.openInputAsync(id) else emptyMidiInput
+                midiInputOpened()
             }
         }
     var midiOutputDeviceId: String?
@@ -58,8 +59,13 @@ class MidiDeviceManager {
         set(id) {
             runBlocking {
                 midiOutput = if (id != null) midiAccessValue.openOutputAsync(id) else emptyMidiOutput
+                midiOutputOpened()
             }
         }
+
+    var midiInputOpened : () -> Unit = {}
+    var midiOutputOpened : () -> Unit = {}
+
     var midiInput: MidiInput? = null
     var midiOutput: MidiOutput? = null
     var virtualMidiOutput: MidiOutput? = null

@@ -60,6 +60,7 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
             var midiInputDialogState by remember { mutableStateOf(false) }
             var midiOutputDialogState by remember { mutableStateOf(false) }
 
+            /*
             if (midiInputDialogState) {
                 // show dialog
                 Column {
@@ -88,6 +89,7 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
                     Text(model.midiDeviceManager.midiInput?.details?.name ?: "-- Select MIDI input --")
                 }
             }
+            */
 
             if (midiOutputDialogState) {
                 Column {
@@ -117,13 +119,13 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
                 }
             }
         }
+        /*
         Row {
             Card(
                 modifier = Modifier.clickable(onClick = instrumentOnClick).padding(12.dp),
                 shape = MaterialTheme.shapes.medium,
                 border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
             ) {
-
                 Text("Acoustic Piano 1")
             }
             Card(
@@ -134,6 +136,7 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
                 Text("General MIDI Instruments Set")
             }
         }
+        */
     }
 }
 

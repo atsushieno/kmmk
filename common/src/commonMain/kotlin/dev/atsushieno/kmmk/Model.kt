@@ -5,6 +5,8 @@ import dev.atsushieno.ktmidi.MidiEventType
 import dev.atsushieno.ktmidi.MidiMusic
 import dev.atsushieno.ktmidi.MidiPlayer
 import dev.atsushieno.ktmidi.Ump
+import dev.atsushieno.ktmidi.ci.MidiCIProtocolTypeInfo
+import dev.atsushieno.ktmidi.ci.midiCIProtocolSet
 import dev.atsushieno.ktmidi.messageType
 import dev.atsushieno.ktmidi.umpfactory.umpMidi2NoteOff
 import dev.atsushieno.ktmidi.umpfactory.umpMidi2NoteOn
@@ -86,5 +88,18 @@ object model {
         midiPlayers.add(player)
         player.finished = Runnable { midiPlayers.remove(player) }
         player.play()
+    }
+
+    init {
+        midiDeviceManager.midiOutputOpened = {
+            if (midiProtocol == MidiCIProtocolType.MIDI2) {
+                val bytes = MutableList<Byte>(19) { 0 }
+                midiCIProtocolSet(bytes, 0, 0, 0,
+                    MidiCIProtocolTypeInfo(0, 0, 0, 0, 0))
+                bytes.add(0, 0xF0.toByte())
+                bytes.add(0xF7.toByte())
+                sendToAll(bytes.toByteArray(), 0)
+            }
+        }
     }
 }
