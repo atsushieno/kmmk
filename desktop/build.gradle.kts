@@ -6,14 +6,14 @@ plugins {
     id("org.jetbrains.compose") version "0.5.0-build224"
 }
 
-group = "dev.atsushieno"
-version = "0.1.0"
-
 repositories {
     mavenLocal()
     mavenCentral()
     maven("https://jitpack.io")
 }
+
+val ktmidi_version = "0.3.5"
+val mugene_version = "0.2.8"
 
 kotlin {
     jvm {
@@ -26,8 +26,8 @@ kotlin {
             dependencies {
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
-                implementation("dev.atsushieno:ktmidi-jvm:0.2.8.5")
-                implementation("dev.atsushieno:ktmidi-jvm-desktop:0.2.8.5")
+                implementation("dev.atsushieno:ktmidi-jvm:$ktmidi_version")
+                implementation("dev.atsushieno:ktmidi-jvm-desktop:$ktmidi_version")
             }
         }
         val jvmTest by getting

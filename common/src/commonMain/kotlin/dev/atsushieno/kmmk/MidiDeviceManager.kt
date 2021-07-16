@@ -2,15 +2,11 @@ package dev.atsushieno.kmmk
 
 import dev.atsushieno.ktmidi.EmptyMidiAccess
 import dev.atsushieno.ktmidi.MidiAccess
-import dev.atsushieno.ktmidi.MidiEventType
 import dev.atsushieno.ktmidi.MidiInput
-import dev.atsushieno.ktmidi.MidiMusic
 import dev.atsushieno.ktmidi.MidiOutput
-import dev.atsushieno.ktmidi.MidiPlayer
 import dev.atsushieno.ktmidi.MidiPortDetails
 import dev.atsushieno.ktmidi.PortCreatorContext
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 

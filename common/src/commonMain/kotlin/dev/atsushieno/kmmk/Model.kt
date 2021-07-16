@@ -1,7 +1,7 @@
 package dev.atsushieno.kmmk
 
 import dev.atsushieno.ktmidi.MidiCIProtocolType
-import dev.atsushieno.ktmidi.MidiEventType
+import dev.atsushieno.ktmidi.MidiChannelStatus
 import dev.atsushieno.ktmidi.MidiMusic
 import dev.atsushieno.ktmidi.MidiPlayer
 import dev.atsushieno.ktmidi.Ump
@@ -12,6 +12,7 @@ import dev.atsushieno.ktmidi.umpfactory.umpMidi2NoteOff
 import dev.atsushieno.ktmidi.umpfactory.umpMidi2NoteOn
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 
 object model {
     object state {
@@ -69,16 +70,16 @@ object model {
             val nOff = convertUmpToBytes(Ump(umpMidi2NoteOff(0, 0, key, 0, 0, 0)))
             sendToAll(nOff, 0)
         } else {
-            val nOn = byteArrayOf(MidiEventType.NOTE_ON, key.toByte(), defaultVelocity)
+            val nOn = byteArrayOf(MidiChannelStatus.NOTE_ON.toByte(), key.toByte(), defaultVelocity)
             sendToAll(nOn, 0)
             delay(1000)
-            val nOff = byteArrayOf(MidiEventType.NOTE_OFF, key.toByte(), 0)
+            val nOff = byteArrayOf(MidiChannelStatus.NOTE_OFF.toByte(), key.toByte(), 0)
             sendToAll(nOff, 0)
         }
     }
 
     fun sendProgramChange(program: Byte) {
-        val bytes = byteArrayOf(MidiEventType.PROGRAM, program)
+        val bytes = byteArrayOf(MidiChannelStatus.PROGRAM.toByte(), program)
         sendToAll(bytes, 0)
     }
 
@@ -93,12 +94,18 @@ object model {
     init {
         midiDeviceManager.midiOutputOpened = {
             if (midiProtocol == MidiCIProtocolType.MIDI2) {
+                // MIDI CI Set New Protocol Message
                 val bytes = MutableList<Byte>(19) { 0 }
                 midiCIProtocolSet(bytes, 0, 0, 0,
-                    MidiCIProtocolTypeInfo(0, 0, 0, 0, 0))
+                    MidiCIProtocolTypeInfo(2, 0, 0, 0, 0))
                 bytes.add(0, 0xF0.toByte())
                 bytes.add(0xF7.toByte())
                 sendToAll(bytes.toByteArray(), 0)
+                // S6.6 "After the Initiator sends this Set New Protocol message, it shall switch its
+                // own Protocol while also waiting 100ms to allow the Responder to switch Protocol."
+                runBlocking {
+                    delay(100)
+                }
             }
         }
     }

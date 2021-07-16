@@ -6,25 +6,8 @@ plugins {
     id("org.jetbrains.compose") version "0.5.0-build224"
 }
 
-group = "dev.atsushieno"
-version = "0.1.0"
-
-val ktmidi_version = "0.3.1"
+val ktmidi_version = "0.3.5"
 val mugene_version = "0.2.8"
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven("https://jitpack.io")
-    google()
-    maven {
-        url = uri("https://maven.pkg.github.com/atsushieno/ktmidi")
-        credentials {
-            username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-            password = project.findProperty("gpr.token") as String? ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
-}
 
 kotlin {
     android()
@@ -58,12 +41,7 @@ kotlin {
                 implementation("junit:junit:4.13.2")
             }
         }
-        val desktopMain by getting {
-            dependencies {
-                implementation("dev.atsushieno:ktmidi-jvm:$ktmidi_version")
-                implementation("dev.atsushieno:mugene-jvm:$mugene_version")
-            }
-        }
+        val desktopMain by getting
         val desktopTest by getting
     }
 }
