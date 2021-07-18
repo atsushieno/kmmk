@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.compose") version "0.5.0-build224"
 }
 
-val ktmidi_version = "0.3.5"
+val ktmidi_version = "0.3.6"
 val mugene_version = "0.2.8"
 
 kotlin {

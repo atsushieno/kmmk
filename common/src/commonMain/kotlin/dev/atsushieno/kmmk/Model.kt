@@ -5,12 +5,10 @@ import dev.atsushieno.ktmidi.MidiChannelStatus
 import dev.atsushieno.ktmidi.MidiMusic
 import dev.atsushieno.ktmidi.MidiPlayer
 import dev.atsushieno.ktmidi.Ump
+import dev.atsushieno.ktmidi.UmpFactory
 import dev.atsushieno.ktmidi.ci.MidiCIProtocolTypeInfo
 import dev.atsushieno.ktmidi.ci.midiCIProtocolSet
-import dev.atsushieno.ktmidi.messageType
-import dev.atsushieno.ktmidi.umpfactory.umpMidi2NoteOff
-import dev.atsushieno.ktmidi.umpfactory.umpMidi2NoteOn
-import io.ktor.utils.io.core.*
+import dev.atsushieno.ktmidi.toBytes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
@@ -30,33 +28,6 @@ object model {
 
     var defaultVelocity : Byte = 100
 
-    private fun fillBytesFromInt(dst: ByteArray, offset: Int, src: Int) {
-        if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
-            dst[offset + 0] = (src % 0x100).toByte()
-            dst[offset + 1] = (src / 0x100 % 0x100).toByte()
-            dst[offset + 2] = (src / 0x10000 % 0x100).toByte()
-            dst[offset + 3] = (src / 0x1000000).toByte()
-        } else {
-            dst[offset + 3] = (src % 0x100).toByte()
-            dst[offset + 2] = (src / 0x100 % 0x100).toByte()
-            dst[offset + 1] = (src / 0x10000 % 0x100).toByte()
-            dst[offset + 0] = (src / 0x1000000).toByte()
-        }
-    }
-
-    private fun convertUmpToBytes(ump: Ump) : ByteArray =
-        ByteArray(8).apply {
-            fillBytesFromInt(this, 0, ump.int1)
-            when (ump.messageType) {
-                3, 4 -> fillBytesFromInt(this, 4, ump.int2)
-                5 -> {
-                    fillBytesFromInt(this, 4, ump.int2)
-                    fillBytesFromInt(this, 8, ump.int3)
-                    fillBytesFromInt(this, 12, ump.int4)
-                }
-            }
-        }
-
     private fun sendToAll(bytes: ByteArray, timestamp: Long) {
         midiDeviceManager.midiOutput?.send(bytes, 0, bytes.size, timestamp)
         midiDeviceManager.virtualMidiOutput?.send(bytes, 0, bytes.size, timestamp)
@@ -64,10 +35,10 @@ object model {
 
     suspend fun playNote(key: Int) {
         if (midiProtocol == MidiCIProtocolType.MIDI2) {
-            val nOn = convertUmpToBytes(Ump(umpMidi2NoteOn(0, 0, key, 0, defaultVelocity * 0x200, 0)))
+            val nOn = Ump(UmpFactory.midi2NoteOn(0, 0, key, 0, defaultVelocity * 0x200, 0)).toBytes()
             sendToAll(nOn, 0)
             delay(1000)
-            val nOff = convertUmpToBytes(Ump(umpMidi2NoteOff(0, 0, key, 0, 0, 0)))
+            val nOff = Ump(UmpFactory.midi2NoteOff(0, 0, key, 0, 0, 0)).toBytes()
             sendToAll(nOff, 0)
         } else {
             val nOn = byteArrayOf(MidiChannelStatus.NOTE_ON.toByte(), key.toByte(), defaultVelocity)
