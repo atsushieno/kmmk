@@ -2,6 +2,7 @@ package dev.atsushieno.kmmk
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.DraggableState
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -13,9 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import kotlinx.coroutines.runBlocking
 
 
 private val noteNames = arrayOf("c", "c+", "d", "d+", "e", "f", "f+", "g", "g+", "a", "a+", "b")
@@ -27,22 +32,33 @@ private val keyBorderWidth = 1.dp
 private val keyPaddingWidth = 1.dp
 
 @Composable
-fun KeyboardRow(octave: Int, onNote: (Int) -> Unit = {}) {
+fun KeyboardRow(octave: Int, onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> Unit = {}) {
     Row {
         Text(modifier = Modifier.width(rowHeaderWidth), text = "o$octave")
-        val arr = (0..11).map { DraggableState {  } }
-        val draggableStates = arr.toMutableList().toMutableStateList()
         for (key in 0..11) {
-            Button(modifier = Modifier.padding(keyPaddingWidth).width(noteWidth).border(keyBorderWidth, Color.Black),
-                colors = ButtonDefaults.buttonColors(if(isWhiteKey(key)) Color.White else Color.DarkGray),
-                onClick = { onNote(octave * 12 + key) }) {
+            val keyId = "Keyboard Octave$octave Key$key"
+            Button(modifier = Modifier.padding(keyPaddingWidth).width(noteWidth).border(keyBorderWidth, Color.Black)
+                .pointerInput(key1 = keyId) {
+                    this.awaitPointerEventScope {
+                        while (true) {
+                            awaitPointerEvent(pass = PointerEventPass.Main)
+                            onNoteOn(octave * 12 + key)
+                            while (true)
+                                // FIXME: maybe there is some way to filter events to drop only up to `!pressed`...
+                                if (awaitPointerEvent(pass = PointerEventPass.Main).changes.any { c -> !c.pressed })
+                                    break
+                            onNoteOff(octave * 12 + key)
+                        }
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(if(isWhiteKey(key)) Color.White else Color.DarkGray), onClick = {}) {
             }
         }
     }
 }
 
 @Composable
-fun MidiKeyboard(onNote: (Int) -> Unit = {}, minOctave: Int = 0, maxOctave: Int = 8) {
+fun MidiKeyboard(onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> Unit = {}, minOctave: Int = 0, maxOctave: Int = 8) {
     Column {
         Row {
             Text(text = "oct.", fontSize = 0.75.em,
@@ -54,7 +70,7 @@ fun MidiKeyboard(onNote: (Int) -> Unit = {}, minOctave: Int = 0, maxOctave: Int 
             }
         }
         for (octave in (minOctave..maxOctave).reversed()) {
-            KeyboardRow(octave, onNote)
+            KeyboardRow(octave, onNoteOn, onNoteOff)
         }
     }
 }

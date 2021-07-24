@@ -40,11 +40,9 @@ fun App() {
             val midiOutputOnClick: (String) -> Unit = {
             }
             MidiSettingsView(instrumentOnClick = instrumentOnClick, presetsOnClick = presetsOnClick, midiInputOnClick = midiInputOnClick, midiOutputOnClick = midiOutputOnClick)
-            MidiKeyboard(onNote = { key ->
-                GlobalScope.launch {
-                    model.playNote(key)
-                }
-            })
+            MidiKeyboard(
+                onNoteOn = { key -> GlobalScope.launch { model.noteOn(key) } },
+                onNoteOff = { key -> GlobalScope.launch { model.noteOff(key) } })
             MmlPad()
         }
     }
