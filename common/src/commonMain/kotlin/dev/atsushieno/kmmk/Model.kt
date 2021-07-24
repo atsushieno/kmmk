@@ -13,14 +13,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
 object model {
-    object state {
-        var midiProtocol: Int = MidiCIProtocolType.MIDI1
-    }
 
     val midiDeviceManager = MidiDeviceManager()
-    var midiProtocol : Int
-        get() = state.midiProtocol
-        set(value) { state.midiProtocol = value }
+    var midiProtocol = MidiCIProtocolType.MIDI1
 
     val compilationDiagnostics = mutableListOf<String>()
     val musics = mutableListOf<MidiMusic>()
@@ -33,17 +28,20 @@ object model {
         midiDeviceManager.virtualMidiOutput?.send(bytes, 0, bytes.size, timestamp)
     }
 
-    suspend fun playNote(key: Int) {
+    suspend fun noteOn(key: Int) {
         if (midiProtocol == MidiCIProtocolType.MIDI2) {
             val nOn = Ump(UmpFactory.midi2NoteOn(0, 0, key, 0, defaultVelocity * 0x200, 0)).toBytes()
             sendToAll(nOn, 0)
-            delay(1000)
-            val nOff = Ump(UmpFactory.midi2NoteOff(0, 0, key, 0, 0, 0)).toBytes()
-            sendToAll(nOff, 0)
         } else {
             val nOn = byteArrayOf(MidiChannelStatus.NOTE_ON.toByte(), key.toByte(), defaultVelocity)
             sendToAll(nOn, 0)
-            delay(1000)
+        }
+    }
+    suspend fun noteOff(key: Int) {
+        if (midiProtocol == MidiCIProtocolType.MIDI2) {
+            val nOff = Ump(UmpFactory.midi2NoteOff(0, 0, key, 0, 0, 0)).toBytes()
+            sendToAll(nOff, 0)
+        } else {
             val nOff = byteArrayOf(MidiChannelStatus.NOTE_OFF.toByte(), key.toByte(), 0)
             sendToAll(nOff, 0)
         }

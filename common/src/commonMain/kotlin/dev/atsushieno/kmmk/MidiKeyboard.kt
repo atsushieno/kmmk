@@ -39,8 +39,8 @@ fun KeyboardRow(octave: Int, onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> U
             val keyId = "Keyboard Octave$octave Key$key"
             Button(modifier = Modifier.padding(keyPaddingWidth).width(noteWidth).border(keyBorderWidth, Color.Black)
                 .pointerInput(key1 = keyId) {
-                    this.awaitPointerEventScope {
-                        while (true) {
+                    while (true) {
+                        this.awaitPointerEventScope {
                             awaitPointerEvent(pass = PointerEventPass.Main)
                             onNoteOn(octave * 12 + key)
                             while (true)
