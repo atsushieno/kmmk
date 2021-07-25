@@ -1,6 +1,8 @@
 package dev.atsushieno.kmmk
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
@@ -11,16 +13,23 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.suspendCoroutine
 
 
 private val noteNames = arrayOf("c", "c+", "d", "d+", "e", "f", "f+", "g", "g+", "a", "a+", "b")
@@ -57,9 +66,34 @@ fun KeyboardRow(octave: Int, onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> U
     }
 }
 
+
 @Composable
 fun MidiKeyboard(onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> Unit = {}, minOctave: Int = 0, maxOctave: Int = 8) {
-    Column {
+    val focusRequester = remember { FocusRequester() }
+    val activeKeys = remember { Array (256) {false} }
+
+    Column(modifier = Modifier
+        .onKeyEvent { evt ->
+            val note = model.getNoteFromKeyCode(evt.utf16CodePoint)
+            if (note < 0)
+                return@onKeyEvent false
+            if (evt.type == KeyEventType.KeyDown) {
+                if (!activeKeys[note]) {
+                    activeKeys[note] = true
+                    GlobalScope.launch { model.noteOn(note) }
+                }
+            } else if (evt.type == KeyEventType.KeyUp) {
+                if (activeKeys[note]) {
+                    activeKeys[note] = false
+                    GlobalScope.launch { model.noteOff(note) }
+                }
+            }
+            return@onKeyEvent true
+        }
+        .focusRequester(focusRequester)
+        .focusable()
+        .clickable { focusRequester.requestFocus() }
+    ) {
         Row {
             Text(text = "oct.", fontSize = 0.75.em,
                 modifier = Modifier.width(rowHeaderWidth))

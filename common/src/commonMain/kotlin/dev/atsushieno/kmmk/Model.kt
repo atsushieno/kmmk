@@ -60,6 +60,25 @@ object model {
         player.play()
     }
 
+    private var octaveShift = 2
+    private val keyboardKeys = arrayOf("1234567890", "qwertyuiop", "asdfghjkl", "zxcvbnm")
+    private val diatonicNotePerKey = arrayOf(
+        arrayOf(44, 46, Int.MIN_VALUE, 49, 51, Int.MIN_VALUE, 54, 56, 58, Int.MIN_VALUE),
+        arrayOf(45, 47, 48, 50, 52, 53, 55, 57, 59, 60),
+        arrayOf(32, 34, Int.MIN_VALUE, 37, 39, Int.MIN_VALUE, 42, 44, 46),
+        arrayOf(33, 35, 36, 38, 40, 41, 43)
+    )
+
+    fun getNoteFromKeyCode(utf16CodePoint: Int): Int {
+        val ch = utf16CodePoint.toChar()
+        keyboardKeys.forEachIndexed { indexOfLines, line ->
+            val idx = line.indexOf(ch)
+            if (idx >= 0)
+                return diatonicNotePerKey[indexOfLines][idx] + octaveShift * 12
+        }
+        return -1
+    }
+
     init {
         midiDeviceManager.midiOutputOpened = {
             if (midiProtocol == MidiCIProtocolType.MIDI2) {
