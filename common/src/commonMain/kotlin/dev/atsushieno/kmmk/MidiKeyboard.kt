@@ -3,19 +3,16 @@ package dev.atsushieno.kmmk
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.gestures.DraggableState
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -23,30 +20,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlin.coroutines.suspendCoroutine
 
 
 private val noteNames = arrayOf("c", "c+", "d", "d+", "e", "f", "f+", "g", "g+", "a", "a+", "b")
 private fun isWhiteKey(key: Int) = when (key) { 0, 2, 4, 5, 7, 9, 11 -> true else -> false }
 
-private val rowHeaderWidth = 32.dp
-private val noteWidth = 24.dp
+private val rowHeaderWidth = 20.dp
+private val noteWidth = 28.dp
 private val keyBorderWidth = 1.dp
 private val keyPaddingWidth = 1.dp
+private val buttonTextSize = 8.5.sp
+private val headerTextSize = 12.sp
 
 @Composable
 fun KeyboardRow(octave: Int, onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> Unit = {}) {
     Row {
-        Text(modifier = Modifier.width(rowHeaderWidth), text = "o$octave")
+        Text(modifier = Modifier.width(rowHeaderWidth), text = "o$octave", fontSize = headerTextSize)
+
         for (key in 0..11) {
             val keyId = "Keyboard Octave$octave Key$key"
-            Button(modifier = Modifier.padding(keyPaddingWidth).width(noteWidth).border(keyBorderWidth, Color.Black)
+            TextButton(modifier = Modifier.padding(keyPaddingWidth).weight(1.0f).border(keyBorderWidth, Color.Black)
                 .pointerInput(key1 = keyId) {
                     while (true) {
                         this.awaitPointerEventScope {
@@ -60,7 +60,11 @@ fun KeyboardRow(octave: Int, onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> U
                         }
                     }
                 },
-                colors = ButtonDefaults.buttonColors(if(isWhiteKey(key)) Color.White else Color.DarkGray), onClick = {}) {
+                colors = ButtonDefaults.textButtonColors(
+                    backgroundColor = if(isWhiteKey(key)) Color.White else Color.DarkGray,
+                    contentColor = if(isWhiteKey(key)) Color.DarkGray else Color.White),
+                onClick = {}) {
+                Text(text = noteNames[key % 12], fontSize = buttonTextSize)
             }
         }
     }
@@ -95,11 +99,11 @@ fun MidiKeyboard(onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> Unit = {}, mi
         .clickable { focusRequester.requestFocus() }
     ) {
         Row {
-            Text(text = "oct.", fontSize = 1.em.times(0.75),
+            Text(text = "oct.", fontSize = headerTextSize,
                 modifier = Modifier.width(rowHeaderWidth))
             for (key in 0..11) {
-                Text(text = noteNames[key % 12], fontSize = 1.em.times(0.75), textAlign = TextAlign.Center,
-                    modifier = Modifier.width(noteWidth + keyBorderWidth * 2).padding(keyPaddingWidth)
+                Text(text = noteNames[key % 12], fontSize = headerTextSize, textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1.0f).padding(keyPaddingWidth)
                 )
             }
         }
