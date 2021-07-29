@@ -95,10 +95,10 @@ fun MidiKeyboard(onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> Unit = {}, mi
         .clickable { focusRequester.requestFocus() }
     ) {
         Row {
-            Text(text = "oct.", fontSize = 0.75.em,
+            Text(text = "oct.", fontSize = 1.em.times(0.75),
                 modifier = Modifier.width(rowHeaderWidth))
             for (key in 0..11) {
-                Text(text = noteNames[key % 12], fontSize = 0.75.em, textAlign = TextAlign.Center,
+                Text(text = noteNames[key % 12], fontSize = 1.em.times(0.75), textAlign = TextAlign.Center,
                     modifier = Modifier.width(noteWidth + keyBorderWidth * 2).padding(keyPaddingWidth)
                 )
             }
