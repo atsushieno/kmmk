@@ -27,13 +27,14 @@ kotlin {
                 implementation("dev.atsushieno:ktmidi:$ktmidi_version")
                 implementation("dev.atsushieno:mugene:$mugene_version")
                 implementation("io.ktor:ktor-io:1.4.0")
+                implementation("com.arkivanov.decompose:decompose:0.2.6")
             }
         }
         val commonTest by getting
         val androidMain by getting {
             dependencies {
-                api("androidx.appcompat:appcompat:1.3.0")
-                api("androidx.core:core-ktx:1.5.0")
+                api("androidx.appcompat:appcompat:1.3.1")
+                api("androidx.core:core-ktx:1.6.0")
             }
         }
         val androidTest by getting {

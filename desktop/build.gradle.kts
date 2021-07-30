@@ -28,6 +28,8 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation("dev.atsushieno:ktmidi-jvm:$ktmidi_version")
                 implementation("dev.atsushieno:ktmidi-jvm-desktop:$ktmidi_version")
+                implementation("com.arkivanov.decompose:decompose:0.2.6")
+                implementation("com.arkivanov.decompose:extensions-compose-jetbrains:0.2.6")
             }
         }
         val jvmTest by getting

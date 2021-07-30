@@ -28,7 +28,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun App() {
+fun App(kmmk: KmmkComponentContext) {
     MaterialTheme {
         Column {
             val instrumentOnClick = {
@@ -39,17 +39,18 @@ fun App() {
             }
             val midiOutputOnClick: (String) -> Unit = {
             }
-            MidiSettingsView(instrumentOnClick = instrumentOnClick, presetsOnClick = presetsOnClick, midiInputOnClick = midiInputOnClick, midiOutputOnClick = midiOutputOnClick)
-            MidiKeyboard(
-                onNoteOn = { key -> GlobalScope.launch { model.noteOn(key) } },
-                onNoteOff = { key -> GlobalScope.launch { model.noteOff(key) } })
-            MmlPad()
+            MidiSettingsView(kmmk, instrumentOnClick = instrumentOnClick, presetsOnClick = presetsOnClick, midiInputOnClick = midiInputOnClick, midiOutputOnClick = midiOutputOnClick)
+            MidiKeyboard(kmmk,
+                onNoteOn = { key -> GlobalScope.launch { kmmk.noteOn(key) } },
+                onNoteOff = { key -> GlobalScope.launch { kmmk.noteOff(key) } })
+            MmlPad(kmmk)
         }
     }
 }
 
 @Composable
-fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
+fun MidiSettingsView(kmmk: KmmkComponentContext,
+                     midiInputOnClick: (String) -> Unit,
                      midiOutputOnClick: (String) -> Unit,
                      instrumentOnClick: () -> Unit,
                      presetsOnClick: () -> Unit) {
@@ -64,12 +65,12 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
                 Column {
                     val onClick: (String) -> Unit = { id ->
                         if (id.isNotEmpty()) {
-                            model.midiDeviceManager.midiInputDeviceId = id
+                            kmmk.midiDeviceManager.midiInputDeviceId = id
                             midiInputOnClick(id)
                         }
                         midiInputDialogState = false
                     }
-                    if (model.midiDeviceManager.midiInputPorts.any())
+                    if (kmmk.midiDeviceManager.midiInputPorts.any())
                         for (d in model.midiDeviceManager.midiInputPorts)
                             Text(
                                 modifier = Modifier.clickable(onClick = { onClick(d.id) }),
@@ -93,13 +94,13 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
                 Column {
                     val onClick: (String) -> Unit = { id ->
                         if (id.isNotEmpty()) {
-                            model.midiDeviceManager.midiOutputDeviceId = id
+                            kmmk.midiDeviceManager.midiOutputDeviceId = id
                             midiOutputOnClick(id)
                         }
                         midiOutputDialogState = false
                     }
-                    if (model.midiDeviceManager.midiOutputPorts.any())
-                        for (d in model.midiDeviceManager.midiOutputPorts)
+                    if (kmmk.midiDeviceManager.midiOutputPorts.any())
+                        for (d in kmmk.midiDeviceManager.midiOutputPorts)
                             Text(
                                 modifier = Modifier.clickable(onClick = { onClick(d.id) }),
                                 text = d.name ?: "(unnamed)"
@@ -113,7 +114,7 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
                     modifier = Modifier.clickable(onClick = { midiOutputDialogState = true }).padding(12.dp),
                     border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
                 ) {
-                    Text(model.midiDeviceManager.midiOutput?.details?.name ?: "-- Select MIDI output --")
+                    Text(kmmk.midiDeviceManager.midiOutput?.details?.name ?: "-- Select MIDI output --")
                 }
             }
         }
@@ -138,29 +139,16 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
     }
 }
 
-fun playMml(mml: String) {
-    val mmlModified = "0 $mml"
-    val compiler = MmlCompiler.create()
-    model.compilationDiagnostics.clear()
-    compiler.report = { verbosity, location, message -> model.compilationDiagnostics.add("$verbosity $location: $message") }
-    try {
-        val music = compiler.compile(false, mmlModified)
-        model.registerMusic(music)
-    } catch(ex: MmlException) {
-        println(ex)
-    }
-}
-
 @Composable
-fun MmlPad() {
+fun MmlPad(kmmk: KmmkComponentContext) {
     var mmlState by remember { mutableStateOf("") }
-    val mmlOnClick = { s:String -> playMml(s) }
-    var midi2EnabledState by remember { mutableStateOf(model.midiProtocol == MidiCIProtocolType.MIDI2) }
+    val mmlOnClick = { s:String -> kmmk.playMml(s) }
+    var midi2EnabledState by remember { mutableStateOf(kmmk.midiProtocol == MidiCIProtocolType.MIDI2) }
 
     Row {
         Checkbox(checked = midi2EnabledState, onCheckedChange = { value ->
             midi2EnabledState = value
-            model.midiProtocol = if (value) MidiCIProtocolType.MIDI2 else MidiCIProtocolType.MIDI1
+            kmmk.midiProtocol = if (value) MidiCIProtocolType.MIDI2 else MidiCIProtocolType.MIDI1
         })
         Text("Send MIDI 2.0 UMPs")
     }

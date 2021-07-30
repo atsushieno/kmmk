@@ -4,7 +4,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -20,10 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -33,7 +30,6 @@ private val noteNames = arrayOf("c", "c+", "d", "d+", "e", "f", "f+", "g", "g+",
 private fun isWhiteKey(key: Int) = when (key) { 0, 2, 4, 5, 7, 9, 11 -> true else -> false }
 
 private val rowHeaderWidth = 20.dp
-private val noteWidth = 28.dp
 private val keyBorderWidth = 1.dp
 private val keyPaddingWidth = 1.dp
 private val buttonTextSize = 8.5.sp
@@ -72,24 +68,25 @@ fun KeyboardRow(octave: Int, onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> U
 
 
 @Composable
-fun MidiKeyboard(onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> Unit = {}, minOctave: Int = 0, maxOctave: Int = 8) {
+fun MidiKeyboard(kmmk: KmmkComponentContext,
+                 onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> Unit = {}, minOctave: Int = 0, maxOctave: Int = 8) {
     val focusRequester = remember { FocusRequester() }
     val activeKeys = remember { Array (256) {false} }
 
     Column(modifier = Modifier
         .onKeyEvent { evt ->
-            val note = model.getNoteFromKeyCode(evt.utf16CodePoint)
+            val note = kmmk.getNoteFromKeyCode(evt.utf16CodePoint)
             if (note < 0)
                 return@onKeyEvent false
             if (evt.type == KeyEventType.KeyDown) {
                 if (!activeKeys[note]) {
                     activeKeys[note] = true
-                    GlobalScope.launch { model.noteOn(note) }
+                    GlobalScope.launch { kmmk.noteOn(note) }
                 }
             } else if (evt.type == KeyEventType.KeyUp) {
                 if (activeKeys[note]) {
                     activeKeys[note] = false
-                    GlobalScope.launch { model.noteOff(note) }
+                    GlobalScope.launch { kmmk.noteOff(note) }
                 }
             }
             return@onKeyEvent true
