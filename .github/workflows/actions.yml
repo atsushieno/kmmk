@@ -49,5 +49,5 @@ jobs:
       with:
         name: kmmk-android
         path:
-          android/build/outputs/apk/**/*.apk
+          android/build/outputs/apk/debug/*.apk
 
