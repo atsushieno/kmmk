@@ -34,7 +34,7 @@ jobs:
         name: test-failure-logs-${{ matrix.os }}
         path: |
           kmmk/build/reports/
-    - name: upload artifact
+    - name: upload artifact - Desktop
       if: success()
       uses: actions/upload-artifact@v2
       with:
@@ -43,4 +43,11 @@ jobs:
           desktop/build/compose/binaries/main/deb/*.deb
           desktop/build/compose/binaries/main/dmg/*.dmg
           desktop/build/compose/binaries/main/msi/*.msi
+    - name: upload artifact - Android
+      if: success() && '${{ matrix.os }}' == 'ubuntu-20.04'
+      uses: actions/upload-artifact@v2
+      with:
+        name: kmmk-android
+        path:
+          android/build/outputs/apk/**/*.apk
 
