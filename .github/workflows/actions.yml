@@ -18,12 +18,12 @@ jobs:
       with:
         java-version: 11
     - name: build
-      run: ./gradlew :android:build
+      run: ./gradlew :android:assembleDebug
     - name: upload build failure logs
       if: failure()
       uses: actions/upload-artifact@v2
       with:
-        name: test-failure-logs-${{ matrix.os }}
+        name: build-failure-logs-android
         path: |
           kmmk/build/reports/
           android/build/reports/
