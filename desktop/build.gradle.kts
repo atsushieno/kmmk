@@ -38,8 +38,8 @@ compose.desktop {
     application {
         mainClass = "dev.atsushieno.kmmk.MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "jvm"
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
+            packageName = "kmmk"
             packageVersion = "1.0.0"
         }
     }
