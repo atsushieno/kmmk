@@ -4,7 +4,7 @@ plugins {
     kotlin("android")
 }
 
-val ktmidi_version = "0.3.6"
+val ktmidi_version = "0.3.7"
 val mugene_version = "0.2.8"
 
 dependencies {
