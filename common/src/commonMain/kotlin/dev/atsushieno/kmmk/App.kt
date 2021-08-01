@@ -166,7 +166,7 @@ fun MmlPad() {
     }
     Row {
         Button(onClick = { mmlOnClick(mmlState) }, modifier = Modifier.align(Alignment.CenterVertically)) {
-            Text("Run")
+            Text("Play")
         }
         OutlinedTextField(
             value = mmlState,
