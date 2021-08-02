@@ -43,7 +43,8 @@ fun MidiSettingsView() {
     Column {
         Row {
             var midiInputDialogState by remember { mutableStateOf(false) }
-            var midiOutputDialogState by remember { mutableStateOf(false) }
+            var midiOutputDropDownExpanded by remember { mutableStateOf(false) }
+            var midiOutputSelectedIndex by remember { mutableStateOf(0) }
 
             /*
             if (midiInputDialogState) {
@@ -76,30 +77,37 @@ fun MidiSettingsView() {
             }
             */
 
-            if (midiOutputDialogState) {
-                Column {
-                    val onClick: (String) -> Unit = { id ->
-                        if (id.isNotEmpty()) {
-                            model.setOutputDevice(id)
-                        }
-                        midiOutputDialogState = false
+            Card(
+                modifier = Modifier.clickable(onClick = { midiOutputDropDownExpanded = true }).padding(12.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+            ) {
+                val onClick: (String) -> Unit = { id ->
+                    if (id.isNotEmpty()) {
+                        model.setOutputDevice(id)
                     }
+                    midiOutputDropDownExpanded = false
+                }
+
+                Text(model.midiDeviceManager.midiOutput?.details?.name ?: "-- Select MIDI output --")
+                DropdownMenu(
+                    expanded = midiOutputDropDownExpanded,
+                    onDismissRequest = { midiOutputDropDownExpanded = false },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     if (model.midiDeviceManager.midiOutputPorts.any())
-                        for (d in model.midiDeviceManager.midiOutputPorts)
-                            Text(
-                                modifier = Modifier.clickable(onClick = { onClick(d.id) }),
-                                text = d.name ?: "(unnamed)"
-                            )
+                        model.midiDeviceManager.midiOutputPorts.toList().forEachIndexed { index, d ->
+                            DropdownMenuItem(onClick = {
+                                midiOutputSelectedIndex = index
+                                midiOutputDropDownExpanded = false
+                            }) {
+                                Text(
+                                    modifier = Modifier.clickable(onClick = { onClick(d.id) }),
+                                    text = d.name ?: "(unnamed)"
+                                )
+                            }
+                        }
                     else
                         Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(no MIDI output)")
-                    Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(Cancel)")
-                }
-            } else {
-                Card(
-                    modifier = Modifier.clickable(onClick = { midiOutputDialogState = true }).padding(12.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
-                ) {
-                    Text(model.midiDeviceManager.midiOutput?.details?.name ?: "-- Select MIDI output --")
                 }
             }
         }
