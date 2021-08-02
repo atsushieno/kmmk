@@ -1,8 +1,8 @@
 name: build dist
 
 on:
-  push:
-  pull_request:
+  create:
+    tags:
 
 jobs:
   build-android:
@@ -27,6 +27,12 @@ jobs:
         path: |
           kmmk/build/reports/
           android/build/reports/
+    - name: upload artifact - Android
+      uses: actions/upload-artifact@v2
+      with:
+        name: kmmk-android
+        path:
+          android/build/outputs/apk/debug/*.apk
 
   build-desktop:
     name: 'build Desktop on ${{ matrix.os }}'
@@ -49,7 +55,7 @@ jobs:
       run: |
         sudo apt-get update
     - name: build
-      run: ./gradlew :desktop:build
+      run: ./gradlew package
     - name: upload build failure logs
       if: failure()
       uses: actions/upload-artifact@v2
@@ -58,4 +64,13 @@ jobs:
         path: |
           kmmk/build/reports/
           desktop/build/reports/
+    - name: upload artifact - Desktop
+      if: success()
+      uses: actions/upload-artifact@v2
+      with:
+        name: kmmk-${{ matrix.os }}
+        path: |
+          desktop/build/compose/binaries/main/deb/*.deb
+          desktop/build/compose/binaries/main/dmg/*.dmg
+          desktop/build/compose/binaries/main/msi/*.msi
 
