@@ -26,7 +26,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
-private val noteNames = arrayOf("c", "c+", "d", "d+", "e", "f", "f+", "g", "g+", "a", "a+", "b")
 private fun isWhiteKey(key: Int) = when (key) { 0, 2, 4, 5, 7, 9, 11 -> true else -> false }
 
 private val rowHeaderWidth = 20.dp
@@ -60,7 +59,7 @@ fun KeyboardRow(kmmk: KmmkComponentContext, octave: Int) {
                     backgroundColor = if(isWhiteKey(key)) Color.White else Color.DarkGray,
                     contentColor = if(isWhiteKey(key)) Color.DarkGray else Color.White),
                 onClick = {}) {
-                Text(text = noteNames[key % 12], fontSize = buttonTextSize)
+                Text(text = kmmk.noteNames[key % 12], fontSize = buttonTextSize)
             }
         }
     }
@@ -98,7 +97,7 @@ fun MidiKeyboard(kmmk: KmmkComponentContext, minOctave: Int = 0, maxOctave: Int 
             Text(text = "oct.", fontSize = headerTextSize,
                 modifier = Modifier.width(rowHeaderWidth))
             for (key in 0..11) {
-                Text(text = noteNames[key % 12], fontSize = headerTextSize, textAlign = TextAlign.Center,
+                Text(text = kmmk.noteNames[key % 12], fontSize = headerTextSize, textAlign = TextAlign.Center,
                     modifier = Modifier.weight(1.0f).padding(keyPaddingWidth)
                 )
             }

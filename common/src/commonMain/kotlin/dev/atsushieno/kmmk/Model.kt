@@ -1,5 +1,9 @@
 package dev.atsushieno.kmmk
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import dev.atsushieno.ktmidi.MidiCIProtocolType
 import dev.atsushieno.ktmidi.MidiChannelStatus
 import dev.atsushieno.ktmidi.MidiMusic
@@ -21,6 +25,19 @@ interface Kmmk {}
 class KmmkComponentContext(
     componentContext: ComponentContext
 ) : Kmmk, ComponentContext by componentContext {
+    val noteNames = arrayOf("c", "c+", "d", "d+", "e", "f", "f+", "g", "g+", "a", "a+", "b")
+
+    private var savedMmlText = ""
+    var mmlText
+        get() = savedMmlText
+        set(v) {
+            savedMmlText = v
+            mmlTextState.value = v
+        }
+    // FIXME: once we sort out which development model to take, take it out from "model".
+    var mmlTextState = mutableStateOf(mmlText)
+
+    var shouldRecordMml = false
 
     val midiDeviceManager = MidiDeviceManager()
     var midiProtocol = MidiCIProtocolType.MIDI1
@@ -44,6 +61,8 @@ class KmmkComponentContext(
             val nOn = byteArrayOf(MidiChannelStatus.NOTE_ON.toByte(), key.toByte(), defaultVelocity)
             sendToAll(nOn, 0)
         }
+        if (shouldRecordMml)
+            mmlText += " o${key / 12}${noteNames[key % 12]}"
     }
     fun noteOff(key: Int) {
         if (midiProtocol == MidiCIProtocolType.MIDI2) {
