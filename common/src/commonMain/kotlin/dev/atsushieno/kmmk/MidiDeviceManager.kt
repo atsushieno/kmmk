@@ -12,7 +12,6 @@ import kotlinx.coroutines.runBlocking
 
 class MidiDeviceManager {
     private val emptyMidiAccess = EmptyMidiAccess()
-    // FIXME: fix API async-ness in ktmidi
     private var emptyMidiInput: MidiInput
     private var emptyMidiOutput: MidiOutput
     private var midiAccessValue: MidiAccess = emptyMidiAccess
@@ -46,16 +45,17 @@ class MidiDeviceManager {
         get() = midiInput?.details?.id
         set(id) {
             runBlocking {
+                midiInput?.close()
                 midiInput = if (id != null) midiAccessValue.openInputAsync(id) else emptyMidiInput
                 midiInputOpened()
             }
         }
+
     var midiOutputDeviceId: String?
         get() = midiOutput?.details?.id
         set(id) {
             runBlocking {
-                if (midiOutput != null)
-                    midiOutput!!.close()
+                midiOutput?.close()
                 midiOutput = if (id != null) midiAccessValue.openOutputAsync(id) else emptyMidiOutput
                 midiOutputOpened()
             }
