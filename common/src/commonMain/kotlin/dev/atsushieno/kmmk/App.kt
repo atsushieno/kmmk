@@ -31,28 +31,15 @@ import kotlinx.coroutines.launch
 fun App() {
     MaterialTheme {
         Column {
-            val instrumentOnClick = {
-            }
-            val presetsOnClick = {
-            }
-            val midiInputOnClick: (String) -> Unit = {
-            }
-            val midiOutputOnClick: (String) -> Unit = {
-            }
-            MidiSettingsView(instrumentOnClick = instrumentOnClick, presetsOnClick = presetsOnClick, midiInputOnClick = midiInputOnClick, midiOutputOnClick = midiOutputOnClick)
-            MidiKeyboard(
-                onNoteOn = { key -> GlobalScope.launch { model.noteOn(key) } },
-                onNoteOff = { key -> GlobalScope.launch { model.noteOff(key) } })
+            MidiSettingsView()
+            MidiKeyboard()
             MmlPad()
         }
     }
 }
 
 @Composable
-fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
-                     midiOutputOnClick: (String) -> Unit,
-                     instrumentOnClick: () -> Unit,
-                     presetsOnClick: () -> Unit) {
+fun MidiSettingsView() {
     Column {
         Row {
             var midiInputDialogState by remember { mutableStateOf(false) }
@@ -93,8 +80,7 @@ fun MidiSettingsView(midiInputOnClick: (String) -> Unit,
                 Column {
                     val onClick: (String) -> Unit = { id ->
                         if (id.isNotEmpty()) {
-                            model.midiDeviceManager.midiOutputDeviceId = id
-                            midiOutputOnClick(id)
+                            model.setOutputDevice(id)
                         }
                         midiOutputDialogState = false
                     }

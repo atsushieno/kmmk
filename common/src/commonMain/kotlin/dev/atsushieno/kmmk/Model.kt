@@ -28,7 +28,7 @@ object model {
         midiDeviceManager.virtualMidiOutput?.send(bytes, 0, bytes.size, timestamp)
     }
 
-    suspend fun noteOn(key: Int) {
+    fun noteOn(key: Int) {
         if (midiProtocol == MidiCIProtocolType.MIDI2) {
             val nOn = Ump(UmpFactory.midi2NoteOn(0, 0, key, 0, defaultVelocity * 0x200, 0)).toBytes()
             sendToAll(nOn, 0)
@@ -37,7 +37,7 @@ object model {
             sendToAll(nOn, 0)
         }
     }
-    suspend fun noteOff(key: Int) {
+    fun noteOff(key: Int) {
         if (midiProtocol == MidiCIProtocolType.MIDI2) {
             val nOff = Ump(UmpFactory.midi2NoteOff(0, 0, key, 0, 0, 0)).toBytes()
             sendToAll(nOff, 0)
@@ -77,6 +77,10 @@ object model {
                 return diatonicNotePerKey[indexOfLines][idx] + octaveShift * 12
         }
         return -1
+    }
+
+    fun setOutputDevice(id: String) {
+        midiDeviceManager.midiOutputDeviceId = id
     }
 
     init {

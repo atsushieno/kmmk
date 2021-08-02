@@ -54,6 +54,8 @@ class MidiDeviceManager {
         get() = midiOutput?.details?.id
         set(id) {
             runBlocking {
+                if (midiOutput != null)
+                    midiOutput!!.close()
                 midiOutput = if (id != null) midiAccessValue.openOutputAsync(id) else emptyMidiOutput
                 midiOutputOpened()
             }
