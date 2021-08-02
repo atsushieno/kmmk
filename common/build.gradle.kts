@@ -3,10 +3,10 @@ import org.jetbrains.compose.compose
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "0.5.0-build224"
+    id("org.jetbrains.compose") version "1.0.0-alpha1-rc1"
 }
 
-val ktmidi_version = "0.3.6"
+val ktmidi_version = "0.3.7"
 val mugene_version = "0.2.8"
 
 kotlin {
@@ -26,8 +26,8 @@ kotlin {
                 // FIXME: shouldn't there be nicer way to simply specify ktmidi API here instead of per-plat sections?
                 implementation("dev.atsushieno:ktmidi:$ktmidi_version")
                 implementation("dev.atsushieno:mugene:$mugene_version")
-                implementation("io.ktor:ktor-io:1.4.0")
                 implementation("com.arkivanov.decompose:decompose:0.2.6")
+                implementation("io.ktor:ktor-io:1.6.0")
             }
         }
         val commonTest by getting

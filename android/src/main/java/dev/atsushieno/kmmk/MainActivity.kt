@@ -9,9 +9,9 @@ import com.arkivanov.decompose.extensions.compose.jetpack.rememberRootComponent
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val kmmk = KmmkComponentContext(rememberRootComponent())
-        kmmk.midiDeviceManager.midiAccess = AndroidMidiAccess(applicationContext)
         setContent {
+            val kmmk = KmmkComponentContext(rememberRootComponent(::KmmkComponentContext))
+            kmmk.midiDeviceManager.midiAccess = AndroidMidiAccess(applicationContext)
             App(kmmk)
         }
     }

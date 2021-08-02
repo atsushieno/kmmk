@@ -1,10 +1,10 @@
 plugins {
-    id("org.jetbrains.compose") version "0.5.0-build224"
+    id("org.jetbrains.compose") version "1.0.0-alpha1-rc1"
     id("com.android.application")
     kotlin("android")
 }
 
-val ktmidi_version = "0.3.6"
+val ktmidi_version = "0.3.7"
 val mugene_version = "0.2.8"
 
 dependencies {
@@ -22,7 +22,7 @@ android {
         minSdkVersion(24)
         targetSdkVersion(30)
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.1.0"
     }
     buildTypes {
         getByName("release") {

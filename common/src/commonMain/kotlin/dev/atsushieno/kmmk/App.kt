@@ -22,38 +22,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.atsushieno.ktmidi.MidiCIProtocolType
-import dev.atsushieno.mugene.MmlCompiler
-import dev.atsushieno.mugene.MmlException
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun App(kmmk: KmmkComponentContext) {
     MaterialTheme {
         Column {
-            val instrumentOnClick = {
-            }
-            val presetsOnClick = {
-            }
-            val midiInputOnClick: (String) -> Unit = {
-            }
-            val midiOutputOnClick: (String) -> Unit = {
-            }
-            MidiSettingsView(kmmk, instrumentOnClick = instrumentOnClick, presetsOnClick = presetsOnClick, midiInputOnClick = midiInputOnClick, midiOutputOnClick = midiOutputOnClick)
-            MidiKeyboard(kmmk,
-                onNoteOn = { key -> GlobalScope.launch { kmmk.noteOn(key) } },
-                onNoteOff = { key -> GlobalScope.launch { kmmk.noteOff(key) } })
+            MidiSettingsView(kmmk)
+            MidiKeyboard(kmmk)
             MmlPad(kmmk)
         }
     }
 }
 
 @Composable
-fun MidiSettingsView(kmmk: KmmkComponentContext,
-                     midiInputOnClick: (String) -> Unit,
-                     midiOutputOnClick: (String) -> Unit,
-                     instrumentOnClick: () -> Unit,
-                     presetsOnClick: () -> Unit) {
+fun MidiSettingsView(kmmk: KmmkComponentContext) {
     Column {
         Row {
             var midiInputDialogState by remember { mutableStateOf(false) }
@@ -94,8 +76,7 @@ fun MidiSettingsView(kmmk: KmmkComponentContext,
                 Column {
                     val onClick: (String) -> Unit = { id ->
                         if (id.isNotEmpty()) {
-                            kmmk.midiDeviceManager.midiOutputDeviceId = id
-                            midiOutputOnClick(id)
+                            kmmk.setOutputDevice(id)
                         }
                         midiOutputDialogState = false
                     }
@@ -154,7 +135,7 @@ fun MmlPad(kmmk: KmmkComponentContext) {
     }
     Row {
         Button(onClick = { mmlOnClick(mmlState) }, modifier = Modifier.align(Alignment.CenterVertically)) {
-            Text("Run")
+            Text("Play")
         }
         OutlinedTextField(
             value = mmlState,

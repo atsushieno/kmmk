@@ -36,7 +36,7 @@ class KmmkComponentContext(
         midiDeviceManager.virtualMidiOutput?.send(bytes, 0, bytes.size, timestamp)
     }
 
-    suspend fun noteOn(key: Int) {
+    fun noteOn(key: Int) {
         if (midiProtocol == MidiCIProtocolType.MIDI2) {
             val nOn = Ump(UmpFactory.midi2NoteOn(0, 0, key, 0, defaultVelocity * 0x200, 0)).toBytes()
             sendToAll(nOn, 0)
@@ -45,7 +45,7 @@ class KmmkComponentContext(
             sendToAll(nOn, 0)
         }
     }
-    suspend fun noteOff(key: Int) {
+    fun noteOff(key: Int) {
         if (midiProtocol == MidiCIProtocolType.MIDI2) {
             val nOff = Ump(UmpFactory.midi2NoteOff(0, 0, key, 0, 0, 0)).toBytes()
             sendToAll(nOff, 0)
@@ -68,19 +68,6 @@ class KmmkComponentContext(
         player.play()
     }
 
-    fun playMml(mml: String) {
-        val mmlModified = "0 $mml"
-        val compiler = MmlCompiler.create()
-        compilationDiagnostics.clear()
-        compiler.report = { verbosity, location, message -> compilationDiagnostics.add("$verbosity $location: $message") }
-        try {
-            val music = compiler.compile(false, mmlModified)
-            registerMusic(music)
-        } catch(ex: MmlException) {
-            println(ex)
-        }
-    }
-
     private var octaveShift = 2
     private val keyboardKeys = arrayOf("1234567890", "qwertyuiop", "asdfghjkl", "zxcvbnm")
     private val diatonicNotePerKey = arrayOf(
@@ -98,6 +85,23 @@ class KmmkComponentContext(
                 return diatonicNotePerKey[indexOfLines][idx] + octaveShift * 12
         }
         return -1
+    }
+
+    fun setOutputDevice(id: String) {
+        midiDeviceManager.midiOutputDeviceId = id
+    }
+
+    fun playMml(mml: String) {
+        val mmlModified = "0 $mml"
+        val compiler = MmlCompiler.create()
+        compilationDiagnostics.clear()
+        compiler.report = { verbosity, location, message -> compilationDiagnostics.add("$verbosity $location: $message") }
+        try {
+            val music = compiler.compile(false, mmlModified)
+            registerMusic(music)
+        } catch(ex: MmlException) {
+            println(ex)
+        }
     }
 
     init {

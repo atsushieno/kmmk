@@ -3,7 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "0.5.0-build224"
+    id("org.jetbrains.compose") version "1.0.0-alpha1-rc1"
 }
 
 repositories {
@@ -12,7 +12,7 @@ repositories {
     maven("https://jitpack.io")
 }
 
-val ktmidi_version = "0.3.6"
+val ktmidi_version = "0.3.7"
 val mugene_version = "0.2.8"
 
 kotlin {
@@ -41,7 +41,7 @@ compose.desktop {
         mainClass = "dev.atsushieno.kmmk.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "jvm"
+            packageName = "kmmk"
             packageVersion = "1.0.0"
         }
     }

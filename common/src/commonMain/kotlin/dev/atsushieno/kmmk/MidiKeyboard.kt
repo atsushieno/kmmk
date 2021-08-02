@@ -36,7 +36,7 @@ private val buttonTextSize = 8.5.sp
 private val headerTextSize = 12.sp
 
 @Composable
-fun KeyboardRow(octave: Int, onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> Unit = {}) {
+fun KeyboardRow(kmmk: KmmkComponentContext, octave: Int) {
     Row {
         Text(modifier = Modifier.width(rowHeaderWidth), text = "o$octave", fontSize = headerTextSize)
 
@@ -47,12 +47,12 @@ fun KeyboardRow(octave: Int, onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> U
                     while (true) {
                         this.awaitPointerEventScope {
                             awaitPointerEvent(pass = PointerEventPass.Main)
-                            onNoteOn(octave * 12 + key)
+                            kmmk.noteOn(octave * 12 + key)
                             while (true)
                                 // FIXME: maybe there is some way to filter events to drop only up to `!pressed`...
                                 if (awaitPointerEvent(pass = PointerEventPass.Main).changes.any { c -> !c.pressed })
                                     break
-                            onNoteOff(octave * 12 + key)
+                            kmmk.noteOff(octave * 12 + key)
                         }
                     }
                 },
@@ -68,8 +68,7 @@ fun KeyboardRow(octave: Int, onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> U
 
 
 @Composable
-fun MidiKeyboard(kmmk: KmmkComponentContext,
-                 onNoteOn: (Int) -> Unit = {}, onNoteOff: (Int) -> Unit = {}, minOctave: Int = 0, maxOctave: Int = 8) {
+fun MidiKeyboard(kmmk: KmmkComponentContext, minOctave: Int = 0, maxOctave: Int = 8) {
     val focusRequester = remember { FocusRequester() }
     val activeKeys = remember { Array (256) {false} }
 
@@ -105,7 +104,7 @@ fun MidiKeyboard(kmmk: KmmkComponentContext,
             }
         }
         for (octave in (minOctave..maxOctave).reversed()) {
-            KeyboardRow(octave, onNoteOn, onNoteOff)
+            KeyboardRow(kmmk, octave)
         }
     }
 }
