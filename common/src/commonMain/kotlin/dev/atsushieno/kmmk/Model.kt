@@ -9,6 +9,8 @@ import dev.atsushieno.ktmidi.UmpFactory
 import dev.atsushieno.ktmidi.ci.MidiCIProtocolTypeInfo
 import dev.atsushieno.ktmidi.ci.midiCIProtocolSet
 import dev.atsushieno.ktmidi.toBytes
+import dev.atsushieno.mugene.MmlCompiler
+import dev.atsushieno.mugene.MmlException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 
@@ -81,6 +83,19 @@ object model {
 
     fun setOutputDevice(id: String) {
         midiDeviceManager.midiOutputDeviceId = id
+    }
+
+    fun playMml(mml: String) {
+        val mmlModified = "0 $mml"
+        val compiler = MmlCompiler.create()
+        compilationDiagnostics.clear()
+        compiler.report = { verbosity, location, message -> compilationDiagnostics.add("$verbosity $location: $message") }
+        try {
+            val music = compiler.compile(false, mmlModified)
+            registerMusic(music)
+        } catch(ex: MmlException) {
+            println(ex)
+        }
     }
 
     init {

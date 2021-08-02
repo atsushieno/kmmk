@@ -22,10 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.atsushieno.ktmidi.MidiCIProtocolType
-import dev.atsushieno.mugene.MmlCompiler
-import dev.atsushieno.mugene.MmlException
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun App() {
@@ -124,23 +120,10 @@ fun MidiSettingsView() {
     }
 }
 
-fun playMml(mml: String) {
-    val mmlModified = "0 $mml"
-    val compiler = MmlCompiler.create()
-    model.compilationDiagnostics.clear()
-    compiler.report = { verbosity, location, message -> model.compilationDiagnostics.add("$verbosity $location: $message") }
-    try {
-        val music = compiler.compile(false, mmlModified)
-        model.registerMusic(music)
-    } catch(ex: MmlException) {
-        println(ex)
-    }
-}
-
 @Composable
 fun MmlPad() {
     var mmlState by remember { mutableStateOf("") }
-    val mmlOnClick = { s:String -> playMml(s) }
+    val mmlOnClick = { s:String -> model.playMml(s) }
     var midi2EnabledState by remember { mutableStateOf(model.midiProtocol == MidiCIProtocolType.MIDI2) }
 
     Row {
