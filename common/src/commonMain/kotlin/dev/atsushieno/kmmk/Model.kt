@@ -54,6 +54,9 @@ class KmmkComponentContext(
 
     var defaultVelocity : Byte = 100
 
+    // FIXME: once we sort out which development model to take, take it out from "model".
+    var program = mutableStateOf(0)
+
     private fun sendToAll(bytes: ByteArray, timestamp: Long) {
         midiDeviceManager.midiOutput?.send(bytes, 0, bytes.size, timestamp)
         midiDeviceManager.virtualMidiOutput?.send(bytes, 0, bytes.size, timestamp)
@@ -75,6 +78,7 @@ class KmmkComponentContext(
         if (shouldRecordMml)
             mmlText += " o${key / 12}${noteNames[key % 12]}"
     }
+
     fun noteOff(key: Int) {
         if (key < 0 || key >= 128 || noteOnStates[key] == 0) // invalid operation
             return
@@ -89,8 +93,9 @@ class KmmkComponentContext(
         }
     }
 
-    fun sendProgramChange(program: Byte) {
-        val bytes = byteArrayOf(MidiChannelStatus.PROGRAM.toByte(), program)
+    fun sendProgramChange(programToChange: Int) {
+        this.program.value = programToChange
+        val bytes = byteArrayOf(MidiChannelStatus.PROGRAM.toByte(), program.value.toByte())
         sendToAll(bytes, 0)
     }
 
