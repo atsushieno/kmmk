@@ -207,6 +207,13 @@ fun MmlPad(kmmk: KmmkComponentContext) {
                 Checkbox(checked = kmmk.shouldRecordMml.value, onCheckedChange = {  onRecordMmlChecked() })
                 Text("Record MML")
             }
+            val onUseDrumChannelChecked = {
+                kmmk.useDrumChannel.value = !kmmk.useDrumChannel.value
+            }
+            Row(modifier = Modifier.padding(6.dp).clickable { onUseDrumChannelChecked() }) {
+                Checkbox(checked = kmmk.useDrumChannel.value, onCheckedChange = {  onUseDrumChannelChecked() })
+                Text("Use 10ch.")
+            }
         }
         Row {
             Button(onClick = { kmmk.playMml(kmmk.mmlText.value) }, modifier = Modifier.align(Alignment.CenterVertically)) {

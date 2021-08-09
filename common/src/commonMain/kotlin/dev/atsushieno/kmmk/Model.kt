@@ -37,6 +37,8 @@ class KmmkComponentContext(
 
     var shouldRecordMml = mutableStateOf(false)
 
+    var useDrumChannel = mutableStateOf(false)
+
     val midiDeviceManager = MidiDeviceManager()
     var midiProtocol = mutableStateOf(MidiCIProtocolType.MIDI1)
 
@@ -54,16 +56,19 @@ class KmmkComponentContext(
         midiDeviceManager.virtualMidiOutput?.send(bytes, 0, bytes.size, timestamp)
     }
 
+    private val targetChannel: Int
+        get() = if (useDrumChannel.value) 9 else 0
+
     fun noteOn(key: Int) {
         if (key < 0 || key >= 128) // invalid operation
             return
         noteOnStates[key]++
 
         if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
-            val nOn = Ump(UmpFactory.midi2NoteOn(0, 0, key, 0, defaultVelocity * 0x200, 0)).toBytes()
+            val nOn = Ump(UmpFactory.midi2NoteOn(0, targetChannel, key, 0, defaultVelocity * 0x200, 0)).toBytes()
             sendToAll(nOn, 0)
         } else {
-            val nOn = byteArrayOf(MidiChannelStatus.NOTE_ON.toByte(), key.toByte(), defaultVelocity)
+            val nOn = byteArrayOf((MidiChannelStatus.NOTE_ON + targetChannel).toByte(), key.toByte(), defaultVelocity)
             sendToAll(nOn, 0)
         }
 
@@ -77,18 +82,23 @@ class KmmkComponentContext(
         noteOnStates[key]--
 
         if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
-            val nOff = Ump(UmpFactory.midi2NoteOff(0, 0, key, 0, 0, 0)).toBytes()
+            val nOff = Ump(UmpFactory.midi2NoteOff(0, targetChannel, key, 0, 0, 0)).toBytes()
             sendToAll(nOff, 0)
         } else {
-            val nOff = byteArrayOf(MidiChannelStatus.NOTE_OFF.toByte(), key.toByte(), 0)
+            val nOff = byteArrayOf((MidiChannelStatus.NOTE_OFF + targetChannel).toByte(), key.toByte(), 0)
             sendToAll(nOff, 0)
         }
     }
 
     fun sendProgramChange(programToChange: Int) {
         this.program.value = programToChange
-        val bytes = byteArrayOf(MidiChannelStatus.PROGRAM.toByte(), program.value.toByte())
-        sendToAll(bytes, 0)
+        if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
+            val nOff = Ump(UmpFactory.midi2Program(0, targetChannel, 0, programToChange, 0, 0)).toBytes()
+            sendToAll(nOff, 0)
+        } else {
+            val bytes = byteArrayOf((MidiChannelStatus.PROGRAM + targetChannel).toByte(), programToChange.toByte())
+            sendToAll(bytes, 0)
+        }
     }
 
     fun registerMusic(music: MidiMusic) {
