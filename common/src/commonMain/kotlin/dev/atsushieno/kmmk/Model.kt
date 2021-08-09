@@ -1,9 +1,11 @@
 package dev.atsushieno.kmmk
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import dev.atsushieno.ktmidi.MidiCIProtocolType
 import dev.atsushieno.ktmidi.MidiChannelStatus
 import dev.atsushieno.ktmidi.MidiMusic
@@ -37,6 +39,10 @@ class KmmkComponentContext(
     // FIXME: once we sort out which development model to take, take it out from "model".
     var mmlTextState = mutableStateOf(mmlText)
 
+    // In this application, we record the *number of* note-ons for each key, instead of an on-off state flag
+    // so that it can technically send more than one note on operations on the same key.
+    var noteOnStates = SnapshotStateList<Int>().also { it.addAll(List(128) { 0 }) }
+
     var shouldRecordMml = false
 
     val midiDeviceManager = MidiDeviceManager()
@@ -54,6 +60,10 @@ class KmmkComponentContext(
     }
 
     fun noteOn(key: Int) {
+        if (key < 0 || key >= 128) // invalid operation
+            return
+        noteOnStates[key]++
+
         if (midiProtocol == MidiCIProtocolType.MIDI2) {
             val nOn = Ump(UmpFactory.midi2NoteOn(0, 0, key, 0, defaultVelocity * 0x200, 0)).toBytes()
             sendToAll(nOn, 0)
@@ -61,10 +71,15 @@ class KmmkComponentContext(
             val nOn = byteArrayOf(MidiChannelStatus.NOTE_ON.toByte(), key.toByte(), defaultVelocity)
             sendToAll(nOn, 0)
         }
+
         if (shouldRecordMml)
             mmlText += " o${key / 12}${noteNames[key % 12]}"
     }
     fun noteOff(key: Int) {
+        if (key < 0 || key >= 128 || noteOnStates[key] == 0) // invalid operation
+            return
+        noteOnStates[key]--
+
         if (midiProtocol == MidiCIProtocolType.MIDI2) {
             val nOff = Ump(UmpFactory.midi2NoteOff(0, 0, key, 0, 0, 0)).toBytes()
             sendToAll(nOff, 0)

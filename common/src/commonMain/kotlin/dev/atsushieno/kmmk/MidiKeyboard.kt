@@ -12,6 +12,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -36,28 +38,34 @@ private val headerTextSize = 12.sp
 
 @Composable
 fun KeyboardRow(kmmk: KmmkComponentContext, octave: Int) {
+
     Row {
         Text(modifier = Modifier.width(rowHeaderWidth), text = "o$octave", fontSize = headerTextSize)
 
         for (key in 0..11) {
+            val note = octave * 12 + key
             val keyId = "Keyboard Octave$octave Key$key"
-            TextButton(modifier = Modifier.padding(keyPaddingWidth).weight(1.0f).border(keyBorderWidth, Color.Black)
+            TextButton(modifier = Modifier.padding(keyPaddingWidth)
+                .weight(1.0f)
+                .border(keyBorderWidth, Color.Black)
                 .pointerInput(key1 = keyId) {
                     while (true) {
                         this.awaitPointerEventScope {
                             awaitPointerEvent(pass = PointerEventPass.Main)
-                            kmmk.noteOn(octave * 12 + key)
+                            kmmk.noteOn(note)
                             while (true)
                                 // FIXME: maybe there is some way to filter events to drop only up to `!pressed`...
                                 if (awaitPointerEvent(pass = PointerEventPass.Main).changes.any { c -> !c.pressed })
                                     break
-                            kmmk.noteOff(octave * 12 + key)
+                            kmmk.noteOff(note)
                         }
                     }
                 },
                 colors = ButtonDefaults.textButtonColors(
-                    backgroundColor = if(isWhiteKey(key)) Color.White else Color.DarkGray,
-                    contentColor = if(isWhiteKey(key)) Color.DarkGray else Color.White),
+                    backgroundColor = if(kmmk.noteOnStates[note] > 0) Color.Yellow
+                        else if(isWhiteKey(key)) Color.White else Color.DarkGray,
+                    contentColor = if(kmmk.noteOnStates[note] > 0) Color.Black
+                        else if(isWhiteKey(key)) Color.DarkGray else Color.White),
                 onClick = {}) {
                 Text(text = kmmk.noteNames[key % 12], fontSize = buttonTextSize)
             }
