@@ -13,6 +13,10 @@ Kmmk makes use of Kotlin Multiplatform and Jetpack Compose, and should run on An
 
 Kmmk has various features.
 
+### Works as a virtual MIDI Input
+
+(Linux and Mac only) when kmmk is launched, it creates a virtual MIDI input port for itself so that any MIDI apps (e.g. DAWs) can use it as a virtual MIDI keyboard.
+
 ### Keyboard layouts
 
 It supports two PC keyset layouts:
@@ -39,6 +43,10 @@ When you type "notes" then they will be recorded at the text entry box, as simpl
 ### Play MML
 
 The recorded MML can be compiled as a MIDI sequence and then sent to the target MIDI output device, just like MIDI player does.
+
+### Combination of all above
+
+Those features can be powerful when they are combined together. For example, you can code some drum patterns as in MML, then play it and send the MIDI seqneunce to your DAW via the kmmk virtual MIDI input.
 
 
 ## License
