@@ -111,7 +111,7 @@ class KmmkComponentContext(
 
     class KeyTonalitySettings(val name: String, val notesPerKey: Array<Array<Int>>)
 
-    private val tonalities = arrayOf(
+    val tonalities = arrayOf(
         KeyTonalitySettings("Diatonic", arrayOf(
             arrayOf(44, 46, Int.MIN_VALUE, 49, 51, Int.MIN_VALUE, 54, 56, 58, Int.MIN_VALUE, 61, 63, Int.MIN_VALUE, 66),
             arrayOf(45, 47, 48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67),
@@ -127,13 +127,20 @@ class KmmkComponentContext(
 
     class KeyboardConfiguration(val name: String, val keys: Array<String>)
 
-    private val keyboards = arrayOf(
+    val keyboards = arrayOf(
         KeyboardConfiguration("ASCII Qwerty", arrayOf("1234567890", "qwertyuiop", "asdfghjkl", "zxcvbnm")),
         KeyboardConfiguration("JP106", arrayOf("1234567890-^\\", "qwertyuiop@[", "asdfghjkl;:]", "zxcvbnm,./"))
     )
 
-    private var selectedKeyboard = mutableStateOf(0)
-    private var selectedTonality = mutableStateOf(0)
+    var selectedKeyboard = mutableStateOf(0)
+    var selectedTonality = mutableStateOf(0)
+
+    fun setKeyboard(index: Int) {
+        selectedKeyboard.value = index
+    }
+    fun setTonality(index: Int) {
+        selectedTonality.value = index
+    }
 
     fun getNoteFromKeyCode(utf16CodePoint: Int): Int {
         val ch = utf16CodePoint.toChar()

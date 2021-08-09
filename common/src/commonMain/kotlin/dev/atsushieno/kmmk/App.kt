@@ -13,6 +13,7 @@ import androidx.compose.material.Checkbox
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,8 +76,8 @@ fun MidiSettingsView(kmmk: KmmkComponentContext) {
             }
             */
 
-            if (midiOutputDialogState) {
-                Column {
+            Column {
+                if (midiOutputDialogState) {
                     val onClick: (String) -> Unit = { id ->
                         if (id.isNotEmpty()) {
                             kmmk.setOutputDevice(id)
@@ -92,27 +93,71 @@ fun MidiSettingsView(kmmk: KmmkComponentContext) {
                     else
                         Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(no MIDI output)")
                     Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(Cancel)")
-                }
-            } else {
-                Card(
-                    modifier = Modifier.clickable(onClick = { midiOutputDialogState = true }).padding(12.dp),
-                    border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
-                ) {
-                    Text(kmmk.midiDeviceManager.midiOutput?.details?.name ?: "-- Select MIDI output --")
+                } else {
+                    Card(
+                        modifier = Modifier.clickable(onClick = { midiOutputDialogState = true }).padding(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+                    ) {
+                        Text(kmmk.midiDeviceManager.midiOutput?.details?.name ?: "-- Select MIDI output --")
+                    }
                 }
             }
         }
         Row {
-            ProgramSelector(kmmk)
-            /*
-            Card(
-                modifier = Modifier.clickable(onClick = presetsOnClick).padding(12.dp),
-                shape = MaterialTheme.shapes.medium,
-                border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
-            ) {
-                Text("General MIDI Instruments Set")
+            Column {
+                ProgramSelector(kmmk)
+                /*
+                Card(
+                    modifier = Modifier.clickable(onClick = presetsOnClick).padding(12.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+                ) {
+                    Text("General MIDI Instruments Set")
+                }
+                */
             }
-            */
+            Column {
+                var tonalityDialogState by remember { mutableStateOf(false) }
+                val onTonalitySelected = { index:Int ->
+                    if (index >= 0)
+                        kmmk.setTonality(index)
+                    tonalityDialogState = false
+                }
+
+                if (tonalityDialogState) {
+                    kmmk.tonalities.forEachIndexed { index, tonality ->
+                        Text(text = tonality.name, modifier = Modifier.clickable { onTonalitySelected(index) })
+                    }
+                    Text(text = "(Cancel)", modifier = Modifier.clickable { onTonalitySelected(-1) })
+                } else {
+                    Card(modifier = Modifier.clickable { tonalityDialogState = true }.padding(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+                    ) {
+                        Text(text = kmmk.tonalities[kmmk.selectedTonality.value].name)
+                    }
+                }
+            }
+            Column {
+                var keyboardDialogState by remember { mutableStateOf(false) }
+                val onKeyboardSelected = { index:Int ->
+                    if (index >= 0)
+                        kmmk.setKeyboard(index)
+                    keyboardDialogState = false
+                }
+
+                if (keyboardDialogState) {
+                    kmmk.keyboards.forEachIndexed { index, keyboard ->
+                        Text(text = keyboard.name, modifier = Modifier.clickable { onKeyboardSelected(index) })
+                    }
+                    Text(text = "(Cancel)", modifier = Modifier.clickable { onKeyboardSelected(-1) })
+                } else {
+                    Card(modifier = Modifier.clickable { keyboardDialogState = true }.padding(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+                    ) {
+                        Text(text = kmmk.keyboards[kmmk.selectedKeyboard.value].name)
+                    }
+                }
+            }
         }
     }
 }
