@@ -9,7 +9,7 @@ import dev.atsushieno.ktmidi.RtMidiAccess
 import com.arkivanov.decompose.extensions.compose.jetbrains.rememberRootComponent
 
 fun main(args: Array<String>) = application {
-    Window(onCloseRequest = ::exitApplication, title = "kmmk") {
+    Window(onCloseRequest = ::exitApplication, title = "Virtual MIDI Keyboard Kmmk") {
         val kmmk = rememberRootComponent(factory = ::KmmkComponentContext)
         kmmk.midiDeviceManager.midiAccess =
             if (File("/dev/snd/seq").exists()) AlsaMidiAccess()

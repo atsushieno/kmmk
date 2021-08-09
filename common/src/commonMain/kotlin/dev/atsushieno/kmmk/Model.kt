@@ -107,7 +107,8 @@ class KmmkComponentContext(
         player.play()
     }
 
-    private var octaveShift = 2
+    var octaveShift = mutableStateOf(2)
+    var noteShift = mutableStateOf(0)
 
     class KeyTonalitySettings(val name: String, val notesPerKey: Array<Array<Int>>)
 
@@ -148,7 +149,7 @@ class KmmkComponentContext(
             val idx = line.indexOf(ch)
             val notesPerKey = tonalities[selectedTonality.value].notesPerKey
             if (idx >= 0 && idx < notesPerKey[indexOfLines].size)
-                return notesPerKey[indexOfLines][idx] + octaveShift * 12
+                return notesPerKey[indexOfLines][idx] + octaveShift.value * 12 + noteShift.value
         }
         return -1
     }

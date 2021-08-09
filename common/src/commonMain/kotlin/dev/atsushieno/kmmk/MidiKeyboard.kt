@@ -74,13 +74,32 @@ fun KeyboardRow(kmmk: KmmkComponentContext, octave: Int) {
 }
 
 
+fun isCursorEventHandled(evt: KeyEvent, kmmk: KmmkComponentContext): Boolean {
+    val cursor = getCursorKeyInput(evt)
+    if (cursor == KeyEventCursorType.NONE)
+        return false
+    if (evt.type == KeyEventType.KeyUp && evt.isShiftPressed)
+        when (cursor) {
+            KeyEventCursorType.UP -> kmmk.octaveShift.value++
+            KeyEventCursorType.DOWN -> kmmk.octaveShift.value--
+            KeyEventCursorType.LEFT -> kmmk.noteShift.value--
+            KeyEventCursorType.RIGHT -> kmmk.noteShift.value++
+            else -> return false
+        }
+    // return true even if it was not handled as KEY_UP or SHIFT pressed - it causes annoying focus move on Android.
+    return true
+}
+
 @Composable
-fun MidiKeyboard(kmmk: KmmkComponentContext, minOctave: Int = 0, maxOctave: Int = 8) {
+fun MidiKeyboard(kmmk: KmmkComponentContext) {
     val focusRequester = remember { FocusRequester() }
     val activeKeys = remember { Array (256) {false} }
 
     Column(modifier = Modifier
         .onKeyEvent { evt ->
+            if (isCursorEventHandled(evt, kmmk))
+                return@onKeyEvent true
+
             val note = kmmk.getNoteFromKeyCode(evt.utf16CodePoint)
             if (note < 0)
                 return@onKeyEvent false
@@ -110,6 +129,8 @@ fun MidiKeyboard(kmmk: KmmkComponentContext, minOctave: Int = 0, maxOctave: Int 
                 )
             }
         }
+        val minOctave = 0
+        val maxOctave = 8
         for (octave in (minOctave..maxOctave).reversed()) {
             KeyboardRow(kmmk, octave)
         }

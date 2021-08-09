@@ -102,6 +102,7 @@ fun MidiSettingsView(kmmk: KmmkComponentContext) {
                     }
                 }
             }
+            Column { Text("Oct.: ${kmmk.octaveShift.value} / Trans.: ${kmmk.noteShift.value}") }
         }
         Row {
             Column {
@@ -206,7 +207,7 @@ fun ProgramSelector(kmmk: KmmkComponentContext) {
                 modifier = Modifier.clickable(onClick = { programCategoryDialogState = true }).padding(12.dp),
                 border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
             ) {
-                Text(GeneralMidi.INSTRUMENT_NAMES[kmmk.program.value]);
+                Text(GeneralMidi.INSTRUMENT_NAMES[kmmk.program.value])
             }
         }
     }
