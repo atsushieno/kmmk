@@ -104,30 +104,38 @@ class KmmkComponentContext(
 
     private var octaveShift = 2
 
-    private val diatonicNotesPerKey = arrayOf(
-        arrayOf(44, 46, Int.MIN_VALUE, 49, 51, Int.MIN_VALUE, 54, 56, 58, Int.MIN_VALUE, 61, 63, Int.MIN_VALUE, 66),
-        arrayOf(45, 47, 48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67),
-        arrayOf(32, 34, Int.MIN_VALUE, 37, 39, Int.MIN_VALUE, 42, 44, 46, Int.MIN_VALUE, 49, 51),
-        arrayOf(33, 35, 36, 38, 40, 41, 43, 45, 47, 48, 50, 52, 53)
-    )
-    private val chromaticNotesPerKey = arrayOf(
-        arrayOf(44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68),
-        arrayOf(45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69),
-        arrayOf(32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56),
-        arrayOf(33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57)
+    class KeyTonalitySettings(val name: String, val notesPerKey: Array<Array<Int>>)
+
+    private val tonalities = arrayOf(
+        KeyTonalitySettings("Diatonic", arrayOf(
+            arrayOf(44, 46, Int.MIN_VALUE, 49, 51, Int.MIN_VALUE, 54, 56, 58, Int.MIN_VALUE, 61, 63, Int.MIN_VALUE, 66),
+            arrayOf(45, 47, 48, 50, 52, 53, 55, 57, 59, 60, 62, 64, 65, 67),
+            arrayOf(32, 34, Int.MIN_VALUE, 37, 39, Int.MIN_VALUE, 42, 44, 46, Int.MIN_VALUE, 49, 51),
+            arrayOf(33, 35, 36, 38, 40, 41, 43, 45, 47, 48, 50, 52, 53)
+        )), KeyTonalitySettings("Chromatic", arrayOf(
+            arrayOf(44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68),
+            arrayOf(45, 47, 49, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69),
+            arrayOf(32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56),
+            arrayOf(33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53, 55, 57)
+        ))
     )
 
-    private val asciiQwertyKeys = arrayOf("1234567890", "qwertyuiop", "asdfghjkl", "zxcvbnm")
-    private val jp106QwertyKeys = arrayOf("1234567890-^\\", "qwertyuiop@[", "asdfghjkl;:]", "zxcvbnm,./")
+    class KeyboardConfiguration(val name: String, val keys: Array<String>)
 
-    private val keyboardKeys = asciiQwertyKeys
-    private val notesPerKey = diatonicNotesPerKey
+    private val keyboards = arrayOf(
+        KeyboardConfiguration("ASCII Qwerty", arrayOf("1234567890", "qwertyuiop", "asdfghjkl", "zxcvbnm")),
+        KeyboardConfiguration("JP106", arrayOf("1234567890-^\\", "qwertyuiop@[", "asdfghjkl;:]", "zxcvbnm,./"))
+    )
+
+    private var selectedKeyboard = mutableStateOf(0)
+    private var selectedTonality = mutableStateOf(0)
 
     fun getNoteFromKeyCode(utf16CodePoint: Int): Int {
         val ch = utf16CodePoint.toChar()
-        keyboardKeys.forEachIndexed { indexOfLines, line ->
+        keyboards[selectedKeyboard.value].keys.forEachIndexed { indexOfLines, line ->
             val idx = line.indexOf(ch)
-            if (idx >= 0)
+            val notesPerKey = tonalities[selectedTonality.value].notesPerKey
+            if (idx >= 0 && idx < notesPerKey[indexOfLines].size)
                 return notesPerKey[indexOfLines][idx] + octaveShift * 12
         }
         return -1
