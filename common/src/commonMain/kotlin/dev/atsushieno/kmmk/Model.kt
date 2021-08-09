@@ -29,24 +29,16 @@ class KmmkComponentContext(
 ) : Kmmk, ComponentContext by componentContext {
     val noteNames = arrayOf("c", "c+", "d", "d+", "e", "f", "f+", "g", "g+", "a", "a+", "b")
 
-    private var savedMmlText = ""
-    var mmlText
-        get() = savedMmlText
-        set(v) {
-            savedMmlText = v
-            mmlTextState.value = v
-        }
-    // FIXME: once we sort out which development model to take, take it out from "model".
-    var mmlTextState = mutableStateOf(mmlText)
+    var mmlText = mutableStateOf("")
 
     // In this application, we record the *number of* note-ons for each key, instead of an on-off state flag
     // so that it can technically send more than one note on operations on the same key.
     var noteOnStates = SnapshotStateList<Int>().also { it.addAll(List(128) { 0 }) }
 
-    var shouldRecordMml = false
+    var shouldRecordMml = mutableStateOf(false)
 
     val midiDeviceManager = MidiDeviceManager()
-    var midiProtocol = MidiCIProtocolType.MIDI1
+    var midiProtocol = mutableStateOf(MidiCIProtocolType.MIDI1)
 
     val compilationDiagnostics = mutableListOf<String>()
     val musics = mutableListOf<MidiMusic>()
@@ -67,7 +59,7 @@ class KmmkComponentContext(
             return
         noteOnStates[key]++
 
-        if (midiProtocol == MidiCIProtocolType.MIDI2) {
+        if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
             val nOn = Ump(UmpFactory.midi2NoteOn(0, 0, key, 0, defaultVelocity * 0x200, 0)).toBytes()
             sendToAll(nOn, 0)
         } else {
@@ -75,8 +67,8 @@ class KmmkComponentContext(
             sendToAll(nOn, 0)
         }
 
-        if (shouldRecordMml)
-            mmlText += " o${key / 12}${noteNames[key % 12]}"
+        if (shouldRecordMml.value)
+            mmlText.value += " o${key / 12}${noteNames[key % 12]}"
     }
 
     fun noteOff(key: Int) {
@@ -84,7 +76,7 @@ class KmmkComponentContext(
             return
         noteOnStates[key]--
 
-        if (midiProtocol == MidiCIProtocolType.MIDI2) {
+        if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
             val nOff = Ump(UmpFactory.midi2NoteOff(0, 0, key, 0, 0, 0)).toBytes()
             sendToAll(nOff, 0)
         } else {
@@ -173,7 +165,7 @@ class KmmkComponentContext(
 
     init {
         midiDeviceManager.midiOutputOpened = {
-            if (midiProtocol == MidiCIProtocolType.MIDI2) {
+            if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
                 // MIDI CI Set New Protocol Message
                 val bytes = MutableList<Byte>(19) { 0 }
                 midiCIProtocolSet(bytes, 0, 0, 0,

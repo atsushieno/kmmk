@@ -191,38 +191,31 @@ fun KeyboardLayoutSelector(kmmk: KmmkComponentContext) {
 
 @Composable
 fun MmlPad(kmmk: KmmkComponentContext) {
-    val mmlState by remember { kmmk.mmlTextState }
-    val mmlOnClick = { s:String -> kmmk.playMml(s) }
-    var midi2EnabledState by remember { mutableStateOf(kmmk.midiProtocol == MidiCIProtocolType.MIDI2) }
-    var shouldRecordMmlState by remember { mutableStateOf(kmmk.shouldRecordMml) }
-
     Column {
         Row {
             val onMidi2Checked = {
-                midi2EnabledState = !midi2EnabledState
-                kmmk.midiProtocol = if (midi2EnabledState) MidiCIProtocolType.MIDI2 else MidiCIProtocolType.MIDI1
+                kmmk.midiProtocol.value = if (kmmk.midiProtocol.value == MidiCIProtocolType.MIDI1) MidiCIProtocolType.MIDI2 else MidiCIProtocolType.MIDI1
             }
             Row(modifier = Modifier.padding(6.dp).clickable{ onMidi2Checked() }) {
-                Checkbox(checked = midi2EnabledState, onCheckedChange = { onMidi2Checked() })
+                Checkbox(checked = kmmk.midiProtocol.value == MidiCIProtocolType.MIDI2, onCheckedChange = { onMidi2Checked() })
                 Text("MIDI 2.0")
             }
             val onRecordMmlChecked = {
-                shouldRecordMmlState = !shouldRecordMmlState
-                kmmk.shouldRecordMml = shouldRecordMmlState
+                kmmk.shouldRecordMml.value = !kmmk.shouldRecordMml.value
             }
             Row(modifier = Modifier.padding(6.dp).clickable { onRecordMmlChecked() }) {
-                Checkbox(checked = shouldRecordMmlState, onCheckedChange = {  onRecordMmlChecked() })
+                Checkbox(checked = kmmk.shouldRecordMml.value, onCheckedChange = {  onRecordMmlChecked() })
                 Text("Record MML")
             }
         }
         Row {
-            Button(onClick = { mmlOnClick(mmlState) }, modifier = Modifier.align(Alignment.CenterVertically)) {
+            Button(onClick = { kmmk.playMml(kmmk.mmlText.value) }, modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text("Play")
             }
             OutlinedTextField(
-                value = mmlState,
+                value = kmmk.mmlText.value,
                 onValueChange = { value ->
-                    kmmk.mmlText = value
+                    kmmk.mmlText.value = value
                 },
                 placeholder = { Text("enter MML text here (no need for track id)") },
                 modifier = Modifier.fillMaxWidth().padding(12.dp).height(150.dp),
