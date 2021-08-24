@@ -41,6 +41,9 @@ class KmmkComponentContext(
 
     var useDrumChannel = mutableStateOf(false)
 
+    var shouldOutputNoteLength = mutableStateOf(false)
+    var currentTempo = mutableStateOf(120.0)
+
     val midiDeviceManager = MidiDeviceManager()
     var midiProtocol = mutableStateOf(MidiCIProtocolType.MIDI1)
 
@@ -64,6 +67,17 @@ class KmmkComponentContext(
         get() = if (useDrumChannel.value) 9 else 0
 
     @OptIn(ExperimentalTime::class)
+    private fun calculateLength(msec: Double) : String {
+        if (!shouldOutputNoteLength.value)
+            return ""
+        // 500 = full note at BPM 120. Minimum by 1/8.
+        val n8th = (currentTempo.value / 120.0 * msec / (500.0 / 8)).toInt()
+        val longPart = "1^".repeat(n8th / 8)
+        val remaining = arrayOf("0", "8", "4", "4.", "2", "2^8", "2.", "2..")
+        return longPart + remaining[n8th % 8]
+    }
+
+    @OptIn(ExperimentalTime::class)
     fun noteOn(key: Int) {
         if (key < 0 || key >= 128) // invalid operation
             return
@@ -81,9 +95,12 @@ class KmmkComponentContext(
         }
 
         if (shouldRecordMml.value) {
+            val msec = (Clock.System.now() - lastNoteOnTime).inWholeMilliseconds.toDouble()
+            val lengthSpec = calculateLength(msec)
+
             // Output & or 0 if there is overlapped note. If it's within 100ms, then it is chord ('0'), otherwise '&'.
             if (existingPlayingNotes)
-                mmlText.value += if ((Clock.System.now() - lastNoteOnTime).inWholeMilliseconds < 100) "0" else "&"
+                mmlText.value += if (msec < 100) "0" else "$lengthSpec &"
             else
                 mmlText.value += " "
             // put relative octave changes.
@@ -99,10 +116,17 @@ class KmmkComponentContext(
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     fun noteOff(key: Int) {
         if (key < 0 || key >= 128 || noteOnStates[key] == 0) // invalid operation
             return
         noteOnStates[key]--
+
+        if (shouldRecordMml.value && noteOnStates.all { it == 0 }) { // chord notes already had length, so do not output length for them.
+            val msec = (Clock.System.now() - lastNoteOnTime).inWholeMilliseconds.toDouble()
+            val lengthSpec = calculateLength(msec)
+            mmlText.value += lengthSpec
+        }
 
         if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
             val nOff = Ump(UmpFactory.midi2NoteOff(0, targetChannel, key, 0, 0, 0)).toBytes()

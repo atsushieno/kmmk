@@ -7,13 +7,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Checkbox
+import androidx.compose.material.Divider
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ListItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Slider
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import dev.atsushieno.ktmidi.GeneralMidi
@@ -29,7 +38,7 @@ import dev.atsushieno.ktmidi.MidiCIProtocolType
 @Composable
 fun App(kmmk: KmmkComponentContext) {
     MaterialTheme {
-        Column {
+        Column(modifier = Modifier.wrapContentHeight()) {
             AppSettingsView(kmmk)
             MidiKeyboard(kmmk)
             MmlPad(kmmk)
@@ -189,30 +198,47 @@ fun KeyboardLayoutSelector(kmmk: KmmkComponentContext) {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MmlPad(kmmk: KmmkComponentContext) {
     Column {
         Row {
             val onMidi2Checked = {
-                kmmk.midiProtocol.value = if (kmmk.midiProtocol.value == MidiCIProtocolType.MIDI1) MidiCIProtocolType.MIDI2 else MidiCIProtocolType.MIDI1
+                kmmk.midiProtocol.value =
+                    if (kmmk.midiProtocol.value == MidiCIProtocolType.MIDI1) MidiCIProtocolType.MIDI2 else MidiCIProtocolType.MIDI1
             }
-            Row(modifier = Modifier.padding(6.dp).clickable{ onMidi2Checked() }) {
-                Checkbox(checked = kmmk.midiProtocol.value == MidiCIProtocolType.MIDI2, onCheckedChange = { onMidi2Checked() })
+            Row(modifier = Modifier.padding(6.dp).clickable { onMidi2Checked() }) {
+                Checkbox(
+                    checked = kmmk.midiProtocol.value == MidiCIProtocolType.MIDI2,
+                    onCheckedChange = { onMidi2Checked() })
                 Text("MIDI 2.0")
             }
             val onRecordMmlChecked = {
                 kmmk.shouldRecordMml.value = !kmmk.shouldRecordMml.value
             }
             Row(modifier = Modifier.padding(6.dp).clickable { onRecordMmlChecked() }) {
-                Checkbox(checked = kmmk.shouldRecordMml.value, onCheckedChange = {  onRecordMmlChecked() })
+                Checkbox(checked = kmmk.shouldRecordMml.value, onCheckedChange = { onRecordMmlChecked() })
                 Text("Record MML")
             }
             val onUseDrumChannelChecked = {
                 kmmk.useDrumChannel.value = !kmmk.useDrumChannel.value
             }
             Row(modifier = Modifier.padding(6.dp).clickable { onUseDrumChannelChecked() }) {
-                Checkbox(checked = kmmk.useDrumChannel.value, onCheckedChange = {  onUseDrumChannelChecked() })
+                Checkbox(checked = kmmk.useDrumChannel.value, onCheckedChange = { onUseDrumChannelChecked() })
                 Text("Use 10ch.")
+            }
+        }
+        Row {
+            val onShouldOutputNoteLengthChecked = {
+                kmmk.shouldOutputNoteLength.value = !kmmk.shouldOutputNoteLength.value
+            }
+            Row(modifier = Modifier.padding(6.dp).clickable { onShouldOutputNoteLengthChecked() }) {
+                Checkbox(checked = kmmk.shouldOutputNoteLength.value, onCheckedChange = {  onShouldOutputNoteLengthChecked() })
+                Text("Output note length.")
+                Text("BPM: ${kmmk.currentTempo.value.toInt()}")
+                Slider(value = kmmk.currentTempo.value.toFloat(),
+                    onValueChange = { kmmk.currentTempo.value = it.toDouble() },
+                    valueRange = 60f .. 240f)
             }
         }
         Row {
@@ -230,5 +256,3 @@ fun MmlPad(kmmk: KmmkComponentContext) {
         }
     }
 }
-
-
