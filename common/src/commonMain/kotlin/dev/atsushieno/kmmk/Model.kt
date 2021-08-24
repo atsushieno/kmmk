@@ -20,6 +20,8 @@ import dev.atsushieno.mugene.MmlException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import com.arkivanov.decompose.ComponentContext
+import kotlinx.datetime.Clock
+import kotlin.time.ExperimentalTime
 
 interface Kmmk {}
 
@@ -47,6 +49,8 @@ class KmmkComponentContext(
     val midiPlayers = mutableListOf<MidiPlayer>()
 
     var defaultVelocity : Byte = 100
+    private var currentMmlOctave = 5
+    private var lastNoteOnTime = Clock.System.now()
 
     // FIXME: once we sort out which development model to take, take it out from "model".
     var program = mutableStateOf(0)
@@ -59,9 +63,13 @@ class KmmkComponentContext(
     private val targetChannel: Int
         get() = if (useDrumChannel.value) 9 else 0
 
+    @OptIn(ExperimentalTime::class)
     fun noteOn(key: Int) {
         if (key < 0 || key >= 128) // invalid operation
             return
+
+        val existingPlayingNotes = noteOnStates.any { it > 0 }
+
         noteOnStates[key]++
 
         if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
@@ -72,8 +80,23 @@ class KmmkComponentContext(
             sendToAll(nOn, 0)
         }
 
-        if (shouldRecordMml.value)
-            mmlText.value += " o${key / 12}${noteNames[key % 12]}"
+        if (shouldRecordMml.value) {
+            // Output & or 0 if there is overlapped note. If it's within 100ms, then it is chord ('0'), otherwise '&'.
+            if (existingPlayingNotes)
+                mmlText.value += if ((Clock.System.now() - lastNoteOnTime).inWholeMilliseconds < 100) "0" else "&"
+            else
+                mmlText.value += " "
+            // put relative octave changes.
+            val oct = key / 12
+            for (i in 0 until oct - currentMmlOctave)
+                mmlText.value += '>'
+            for (i in 0 until currentMmlOctave - oct)
+                mmlText.value += '<'
+            mmlText.value += " ${noteNames[key % 12]}"
+
+            currentMmlOctave = oct
+            lastNoteOnTime = Clock.System.now()
+        }
     }
 
     fun noteOff(key: Int) {

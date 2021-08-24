@@ -1,18 +1,18 @@
 plugins {
-    id("org.jetbrains.compose") version "1.0.0-alpha1-rc1"
+    id("org.jetbrains.compose") version "1.0.0-alpha1-rc4"
     id("com.android.application")
     kotlin("android")
 }
 
-val ktmidi_version = "0.3.7"
+val ktmidi_version = "0.3.8"
 val mugene_version = "0.2.8"
 
 dependencies {
     implementation(project(":common"))
-    implementation("androidx.activity:activity-compose:1.3.0")
+    implementation("androidx.activity:activity-compose:1.3.1")
     implementation("dev.atsushieno:ktmidi-android:$ktmidi_version")
-    implementation("com.arkivanov.decompose:decompose:0.2.6")
-    implementation("com.arkivanov.decompose:extensions-compose-jetpack:0.2.6")
+    implementation("com.arkivanov.decompose:decompose:0.3.1")
+    implementation("com.arkivanov.decompose:extensions-compose-jetpack:0.3.1")
 }
 
 android {
