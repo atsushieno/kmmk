@@ -73,4 +73,8 @@ jobs:
           desktop/build/compose/binaries/main/deb/*.deb
           desktop/build/compose/binaries/main/dmg/*.dmg
           desktop/build/compose/binaries/main/msi/*.msi
+    - name: create release
+      uses: ncipollo/release-action@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 
