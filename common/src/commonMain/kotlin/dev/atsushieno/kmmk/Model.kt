@@ -179,6 +179,7 @@ class KmmkComponentContext(
 
     val keyboards = arrayOf(
         KeyboardConfiguration("ASCII Qwerty", arrayOf("1234567890", "qwertyuiop", "asdfghjkl", "zxcvbnm")),
+        KeyboardConfiguration("US101", arrayOf("1234567890_=", "qwertyuiop[]", "asdfghjkl;']", "zxcvbnm,./")),
         KeyboardConfiguration("JP106", arrayOf("1234567890-^\\", "qwertyuiop@[", "asdfghjkl;:]", "zxcvbnm,./"))
     )
 
