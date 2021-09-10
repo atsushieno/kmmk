@@ -3,7 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.0.0-alpha1-rc4"
+    id("org.jetbrains.compose") version "1.0.0-alpha3"
 }
 
 repositories {
@@ -12,8 +12,7 @@ repositories {
     maven("https://jitpack.io")
 }
 
-val ktmidi_version = "0.3.8"
-val mugene_version = "0.2.8"
+val ktmidi_version = "0.3.10"
 
 kotlin {
     jvm {

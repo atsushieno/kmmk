@@ -1,11 +1,10 @@
 plugins {
-    id("org.jetbrains.compose") version "1.0.0-alpha1-rc4"
+    id("org.jetbrains.compose") version "1.0.0-alpha3"
     id("com.android.application")
     kotlin("android")
 }
 
-val ktmidi_version = "0.3.8"
-val mugene_version = "0.2.8"
+val ktmidi_version = "0.3.10"
 
 dependencies {
     implementation(project(":common"))

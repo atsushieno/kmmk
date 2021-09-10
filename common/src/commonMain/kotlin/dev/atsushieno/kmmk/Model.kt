@@ -22,6 +22,7 @@ import kotlinx.coroutines.runBlocking
 import com.arkivanov.decompose.ComponentContext
 import kotlinx.datetime.Clock
 import kotlin.time.ExperimentalTime
+import kotlinx.coroutines.Runnable
 
 interface Kmmk {}
 
@@ -148,8 +149,8 @@ class KmmkComponentContext(
         }
     }
 
-    fun registerMusic(music: MidiMusic) {
-        val output = midiDeviceManager.midiOutput ?: return
+    fun registerMusic(music: MidiMusic, playOnInput: Boolean) {
+        val output = (if (playOnInput) midiDeviceManager.virtualMidiOutput else midiDeviceManager.midiOutput) ?: return
         val player = MidiPlayer(music, output)
         midiPlayers.add(player)
         player.finished = Runnable { midiPlayers.remove(player) }
@@ -208,14 +209,14 @@ class KmmkComponentContext(
         midiDeviceManager.midiOutputDeviceId = id
     }
 
-    fun playMml(mml: String) {
+    fun playMml(mml: String, playOnInput: Boolean) {
         val mmlModified = "0 $mml"
         val compiler = MmlCompiler.create()
         compilationDiagnostics.clear()
         compiler.report = { verbosity, location, message -> compilationDiagnostics.add("$verbosity $location: $message") }
         try {
             val music = compiler.compile(false, mmlModified)
-            registerMusic(music)
+            registerMusic(music, playOnInput)
         } catch(ex: MmlException) {
             println(ex)
         }

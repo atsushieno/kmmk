@@ -10,7 +10,7 @@ buildscript {
     }
 }
 
-allprojects {
+subprojects {
     group = "dev.atsushieno"
     version = "0.2"
 

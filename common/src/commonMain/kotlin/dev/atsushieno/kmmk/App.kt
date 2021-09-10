@@ -242,8 +242,19 @@ fun MmlPad(kmmk: KmmkComponentContext) {
             }
         }
         Row {
-            Button(onClick = { kmmk.playMml(kmmk.mmlText.value) }, modifier = Modifier.align(Alignment.CenterVertically)) {
-                Text("Play")
+            Column(modifier = Modifier.align(Alignment.CenterVertically)) {
+                Button(
+                    modifier = Modifier.padding(6.dp),
+                    onClick = { kmmk.playMml(kmmk.mmlText.value, false) }
+                ) {
+                    Text("Play on Output")
+                }
+                Button(
+                    modifier = Modifier.padding(6.dp),
+                    onClick = { kmmk.playMml(kmmk.mmlText.value, true) }
+                ) {
+                    Text("Play on Virtual Input")
+                }
             }
             OutlinedTextField(
                 value = kmmk.mmlText.value,
