@@ -40,7 +40,8 @@ fun App(kmmk: KmmkComponentContext) {
     MaterialTheme {
         Column(modifier = Modifier.wrapContentHeight()) {
             AppSettingsView(kmmk)
-            MidiKeyboard(kmmk)
+            MusicalKeyboardView(kmmk)
+            MidiKeyboardButtons(kmmk)
             MmlPad(kmmk)
         }
     }

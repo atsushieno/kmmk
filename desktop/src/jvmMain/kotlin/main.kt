@@ -13,7 +13,7 @@ import dev.atsushieno.ktmidi.RtMidiAccess
 import com.arkivanov.decompose.extensions.compose.jetbrains.rememberRootComponent
 
 fun main(args: Array<String>) = application {
-    val windowState = rememberWindowState(size = WindowSize(800.dp, 700.dp))
+    val windowState = rememberWindowState(size = WindowSize(800.dp, 750.dp))
     Window(state = windowState, onCloseRequest = ::exitApplication, title = "Virtual MIDI Keyboard Kmmk") {
         val kmmk = rememberRootComponent(factory = ::KmmkComponentContext)
         kmmk.midiDeviceManager.midiAccess =
