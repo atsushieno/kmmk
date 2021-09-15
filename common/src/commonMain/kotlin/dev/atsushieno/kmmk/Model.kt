@@ -222,22 +222,33 @@ class KmmkComponentContext(
         }
     }
 
-    init {
-        midiDeviceManager.midiOutputOpened = {
-            if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
-                // MIDI CI Set New Protocol Message
-                val bytes = MutableList<Byte>(19) { 0 }
-                midiCIProtocolSet(bytes, 0, 0, 0,
-                    MidiCIProtocolTypeInfo(2, 0, 0, 0, 0))
-                bytes.add(0, 0xF0.toByte())
-                bytes.add(0xF7.toByte())
-                sendToAll(bytes.toByteArray(), 0)
-                // S6.6 "After the Initiator sends this Set New Protocol message, it shall switch its
-                // own Protocol while also waiting 100ms to allow the Responder to switch Protocol."
-                runBlocking {
-                    delay(100)
-                }
-            }
+    fun onMidiProtocolUpdated() {
+        midiProtocol.value = if (midiProtocol.value == MidiCIProtocolType.MIDI2) MidiCIProtocolType.MIDI1 else MidiCIProtocolType.MIDI2
+
+        // Generate a MIDI CI Set New Protocol Message...
+        val bytes = MutableList<Byte>(19) { 0 }
+        val protocolValue: Byte = if (midiProtocol.value == MidiCIProtocolType.MIDI2) 2 else 1
+        midiCIProtocolSet(bytes, 0, 0, 0,
+            MidiCIProtocolTypeInfo(protocolValue, 0, 0, 0, 0))
+        bytes.add(0, 0xF0.toByte())
+        bytes.add(0xF7.toByte())
+
+        // ...and send it...
+        if (protocolValue * 1 == 2) {
+            // ... in MIDI1 sysex
+            sendToAll(bytes.toByteArray(), 0)
+        } else {
+            // ... in MIDI2 UMP.
+            val umpInBytes = mutableListOf<Byte>()
+            UmpFactory.sysex7Process(0, bytes, { p, _ ->
+                umpInBytes.addAll(Ump(p).toBytes().toTypedArray())
+            }, null)
+            sendToAll(umpInBytes.toByteArray(), 0)
+        }
+        // S6.6 "After the Initiator sends this Set New Protocol message, it shall switch its
+        // own Protocol while also waiting 100ms to allow the Responder to switch Protocol."
+        runBlocking {
+            delay(100)
         }
     }
 }

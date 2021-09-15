@@ -204,14 +204,11 @@ fun KeyboardLayoutSelector(kmmk: KmmkComponentContext) {
 fun MmlPad(kmmk: KmmkComponentContext) {
     Column {
         Row {
-            val onMidi2Checked = {
-                kmmk.midiProtocol.value =
-                    if (kmmk.midiProtocol.value == MidiCIProtocolType.MIDI1) MidiCIProtocolType.MIDI2 else MidiCIProtocolType.MIDI1
-            }
-            Row(modifier = Modifier.padding(6.dp).clickable { onMidi2Checked() }) {
+            // These click handlers look like duplicates, but only either of Modifier.clickable or Checkbox.onCheckedChange is invoked...
+            Row(modifier = Modifier.padding(6.dp).clickable { kmmk.onMidiProtocolUpdated() }) {
                 Checkbox(
                     checked = kmmk.midiProtocol.value == MidiCIProtocolType.MIDI2,
-                    onCheckedChange = { onMidi2Checked() })
+                    onCheckedChange = { kmmk.onMidiProtocolUpdated() })
                 Text("MIDI 2.0")
             }
             val onRecordMmlChecked = {
