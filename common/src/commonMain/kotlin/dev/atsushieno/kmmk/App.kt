@@ -247,13 +247,13 @@ fun MmlPad(kmmk: KmmkComponentContext) {
                     modifier = Modifier.padding(6.dp),
                     onClick = { kmmk.playMml(kmmk.mmlText.value, false) }
                 ) {
-                    Text("Play on Output")
+                    Text("Play")
                 }
                 Button(
                     modifier = Modifier.padding(6.dp),
                     onClick = { kmmk.playMml(kmmk.mmlText.value, true) }
                 ) {
-                    Text("Play on Virtual Input")
+                    Text("Send as Input")
                 }
             }
             OutlinedTextField(
