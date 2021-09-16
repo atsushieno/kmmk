@@ -31,8 +31,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
+import androidx.compose.runtime.MutableState
 
 private fun isWhiteKey(key: Int) = when (key) { 0, 2, 4, 5, 7, 9, 11 -> true else -> false }
 
@@ -97,12 +99,11 @@ fun isCursorEventHandled(evt: KeyEvent, kmmk: KmmkComponentContext): Boolean {
 }
 
 @Composable
-fun MidiKeyboardButtons(kmmk: KmmkComponentContext) {
+fun KeyEventRecipient(kmmk: KmmkComponentContext, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val focusRequester = remember { FocusRequester() }
     val activeKeys = remember { Array (256) {false} }
 
-    Column(modifier = Modifier
-        .onKeyEvent { evt ->
+    Column(modifier = modifier.onKeyEvent { evt ->
             if (isCursorEventHandled(evt, kmmk))
                 return@onKeyEvent true
 
@@ -124,8 +125,29 @@ fun MidiKeyboardButtons(kmmk: KmmkComponentContext) {
         }
         .focusRequester(focusRequester)
         .focusable()
-        .clickable { focusRequester.requestFocus() }
-    ) {
+        .clickable { focusRequester.requestFocus() }) {
+        content()
+    }
+}
+
+@Composable
+fun MidiKeyboardButtonsFoldable(kmmk: KmmkComponentContext) {
+    var foldState by remember { mutableStateOf(false) }
+
+    Row {
+        KeyEventRecipient(kmmk) {
+            Text("[*]")
+        }
+        Text(if (foldState) "[+]" else "[-]", modifier = Modifier.clickable { foldState = !foldState })
+    }
+    if (!foldState) {
+        MidiKeyboardButtons(kmmk)
+    }
+}
+
+@Composable
+fun MidiKeyboardButtons(kmmk: KmmkComponentContext) {
+    KeyEventRecipient(kmmk) {
         val minOctave = 0
         val maxOctave = 8
         for (octave in (minOctave..maxOctave).reversed()) {

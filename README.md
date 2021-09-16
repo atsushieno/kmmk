@@ -49,6 +49,12 @@ The recorded MML can be compiled as a MIDI sequence and then sent to the target 
 Those features can be powerful when they are combined together. For example, you can code some drum patterns as in MML, then play it and send the MIDI seqneunce to your DAW via the kmmk virtual MIDI input.
 
 
+## Miscellaneous Notes
+
+The key events cannot be received until kmmk receives pointer event on the button pad, which is not doable on buttons but only doable on the rightmost text labels. It is annoying, but focus events are not designed well yet.
+
+The button pad can be hidden by toggle button (`[+]` Text), but to keep receiving key events until you click on `[*]` button for the same reason.
+
 ## License
 
 kmmk is distributed under the MIT License.
