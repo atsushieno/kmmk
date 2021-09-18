@@ -28,6 +28,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1")
                 implementation("com.arkivanov.decompose:decompose:0.3.1")
                 implementation("io.ktor:ktor-io:1.6.1")
+                implementation("dev.atsushieno:compose-mpp:0.1.1")
             }
         }
         val commonTest by getting

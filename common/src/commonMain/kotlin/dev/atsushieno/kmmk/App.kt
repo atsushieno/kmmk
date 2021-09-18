@@ -34,6 +34,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import dev.atsushieno.ktmidi.GeneralMidi
 import dev.atsushieno.ktmidi.MidiCIProtocolType
+import dev.atsushieno.composempp.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun App(kmmk: KmmkComponentContext) {
@@ -53,15 +56,6 @@ fun AppSettingsView(kmmk: KmmkComponentContext) {
     Column {
         Row {
             Column {
-                MidiDeviceSelector(kmmk)
-            }
-            Column {
-                Text(text = "Oct.: ${kmmk.octaveShift.value} / Trans.: ${kmmk.noteShift.value}",
-                    modifier = Modifier.padding(12.dp))
-            }
-        }
-        Row {
-            Column {
                 ProgramSelector(kmmk)
             }
             Column {
@@ -71,13 +65,23 @@ fun AppSettingsView(kmmk: KmmkComponentContext) {
                 KeyboardLayoutSelector(kmmk)
             }
         }
+        Row {
+            Column {
+                MidiDeviceSelector(kmmk)
+            }
+            Column {
+                Text(text = "Oct.: ${kmmk.octaveShift.value} / Trans.: ${kmmk.noteShift.value}",
+                    modifier = Modifier.padding(12.dp))
+            }
+        }
     }
 }
 
 @Composable
 fun MidiDeviceSelector(kmmk: KmmkComponentContext) {
     var midiOutputDialogState by remember { mutableStateOf(false) }
-    if (midiOutputDialogState) {
+
+    DropdownMenu(expanded = midiOutputDialogState, onDismissRequest = { midiOutputDialogState = false}) {
         val onClick: (String) -> Unit = { id ->
             if (id.isNotEmpty()) {
                 kmmk.setOutputDevice(id)
@@ -86,20 +90,18 @@ fun MidiDeviceSelector(kmmk: KmmkComponentContext) {
         }
         if (kmmk.midiDeviceManager.midiOutputPorts.any())
             for (d in kmmk.midiDeviceManager.midiOutputPorts)
-                Text(
-                    modifier = Modifier.clickable(onClick = { onClick(d.id) }),
-                    text = d.name ?: "(unnamed)"
-                )
+                DropdownMenuItem(onClick = { onClick(d.id) }) {
+                    Text(d.name ?: "(unnamed)")
+                }
         else
-            Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(no MIDI output)")
-        Text(modifier = Modifier.clickable(onClick = { onClick("") }), text = "(Cancel)")
-    } else {
-        Card(
-            modifier = Modifier.clickable(onClick = { midiOutputDialogState = true }).padding(12.dp),
-            border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
-        ) {
-            Text(kmmk.midiDeviceManager.midiOutput?.details?.name ?: "-- Select MIDI output --")
-        }
+            DropdownMenuItem(onClick = { onClick("") }) { Text("(no MIDI output)") }
+        DropdownMenuItem(onClick = { onClick("") }) { Text("(Cancel)") }
+    }
+    Card(
+        modifier = Modifier.clickable(onClick = { midiOutputDialogState = true }).padding(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+    ) {
+        Text(kmmk.midiDeviceManager.midiOutput?.details?.name ?: "-- Select MIDI output --")
     }
 }
 
@@ -108,9 +110,9 @@ fun ProgramSelector(kmmk: KmmkComponentContext) {
     var programCategoryDialogState by remember { mutableStateOf(false) }
     var programCategoryState by remember { mutableStateOf(-1) }
 
-    if (programCategoryState >= 0) {
-        Text(text = "${programCategoryState * 8}: ${GeneralMidi.INSTRUMENT_CATEGORIES[programCategoryState]} -> ")
-        Column {
+    DropdownMenu(expanded = programCategoryDialogState || programCategoryState >= 0, onDismissRequest = { programCategoryDialogState = false}) {
+        if (programCategoryState >= 0) {
+            //Text(text = "${programCategoryState * 8}: ${GeneralMidi.INSTRUMENT_CATEGORIES[programCategoryState]} -> ")
             val onSelectProgram: (Int) -> Unit = { selection ->
                 if (selection >= 0)
                     kmmk.sendProgramChange(selection)
@@ -119,37 +121,24 @@ fun ProgramSelector(kmmk: KmmkComponentContext) {
             }
             GeneralMidi.INSTRUMENT_NAMES.drop(programCategoryState * 8).take(8).forEachIndexed { index, program ->
                 val programValue = programCategoryState * 8 + index
-                Text(
-                    modifier = Modifier.clickable(onClick = { onSelectProgram(programValue) }),
-                    text = "${programValue}: $program"
-                )
+                DropdownMenuItem(onClick = { onSelectProgram(programValue) }) { Text("${programValue}: $program") }
             }
-            Text(modifier = Modifier.clickable(onClick = { onSelectProgram(-2) }), text = "(Back)")
-            Text(modifier = Modifier.clickable(onClick = { onSelectProgram(-1) }), text = "(Cancel)")
-        }
-    } else {
-        if (programCategoryDialogState) {
-            Column {
-                val onSelectCategory: (Int) -> Unit = { category ->
-                    programCategoryState = category
-                    programCategoryDialogState = false
-                }
-                GeneralMidi.INSTRUMENT_CATEGORIES.forEachIndexed { index, category ->
-                    Text(
-                        modifier = Modifier.clickable(onClick = { onSelectCategory(index) }),
-                        text = "${index * 8}: $category"
-                    )
-                }
-                Text(modifier = Modifier.clickable(onClick = { onSelectCategory(-1) }), text = "(Cancel)")
-            }
+            DropdownMenuItem(onClick = { onSelectProgram(-2) }) { Text("(Back)") }
         } else {
-            Card(
-                modifier = Modifier.clickable(onClick = { programCategoryDialogState = true }).padding(12.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
-            ) {
-                Text(GeneralMidi.INSTRUMENT_NAMES[kmmk.program.value])
+            val onSelectCategory: (Int) -> Unit = { category ->
+                programCategoryState = category
+                programCategoryDialogState = false
+            }
+            GeneralMidi.INSTRUMENT_CATEGORIES.forEachIndexed { index, category ->
+                DropdownMenuItem(onClick = { onSelectCategory(index) }) { Text("${index * 8}: $category") }
             }
         }
+    }
+    Card(
+        modifier = Modifier.clickable(onClick = { programCategoryDialogState = true }).padding(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+    ) {
+        Text(GeneralMidi.INSTRUMENT_NAMES[kmmk.program.value])
     }
 }
 
@@ -162,17 +151,15 @@ fun TonalitySelector(kmmk: KmmkComponentContext) {
         tonalityDialogState = false
     }
 
-    if (tonalityDialogState) {
+    DropdownMenu(expanded = tonalityDialogState, onDismissRequest = { tonalityDialogState = false}) {
         kmmk.tonalities.forEachIndexed { index, tonality ->
-            Text(text = tonality.name, modifier = Modifier.clickable { onTonalitySelected(index) })
+            DropdownMenuItem(onClick = { onTonalitySelected(index) }) { Text(tonality.name) }
         }
-        Text(text = "(Cancel)", modifier = Modifier.clickable { onTonalitySelected(-1) })
-    } else {
-        Card(modifier = Modifier.clickable { tonalityDialogState = true }.padding(12.dp),
-            border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
-        ) {
-            Text(text = kmmk.tonalities[kmmk.selectedTonality.value].name)
-        }
+    }
+    Card(modifier = Modifier.clickable { tonalityDialogState = true }.padding(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+    ) {
+        Text(text = kmmk.tonalities[kmmk.selectedTonality.value].name)
     }
 }
 
@@ -185,17 +172,15 @@ fun KeyboardLayoutSelector(kmmk: KmmkComponentContext) {
         keyboardDialogState = false
     }
 
-    if (keyboardDialogState) {
+    DropdownMenu(expanded = keyboardDialogState, onDismissRequest = { keyboardDialogState = false}) {
         kmmk.keyboards.forEachIndexed { index, keyboard ->
-            Text(text = keyboard.name, modifier = Modifier.clickable { onKeyboardSelected(index) })
+            DropdownMenuItem(onClick = { onKeyboardSelected(index) }) { Text(text = keyboard.name) }
         }
-        Text(text = "(Cancel)", modifier = Modifier.clickable { onKeyboardSelected(-1) })
-    } else {
-        Card(modifier = Modifier.clickable { keyboardDialogState = true }.padding(12.dp),
-            border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
-        ) {
-            Text(text = kmmk.keyboards[kmmk.selectedKeyboard.value].name)
-        }
+    }
+    Card(modifier = Modifier.clickable { keyboardDialogState = true }.padding(12.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+    ) {
+        Text(text = kmmk.keyboards[kmmk.selectedKeyboard.value].name)
     }
 }
 
