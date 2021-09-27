@@ -5,7 +5,7 @@
 
 Kmmk is a virtual MIDI keyboard application based on [ktmidi](https://github.com/atsushieno/ktmidi).
 
-Here is the basics: it receives either keyboard inputs, mouse clicks or touch inputs, among whatever the underlying platform accepts. Then it sends note on/off operations etc. to the target MIDI output device.
+Here are the basics: it receives either keyboard inputs, mouse clicks or touch inputs, among whatever the underlying platform accepts. Then it sends note on/off operations etc. to the target MIDI output device.
 
 Kmmk makes use of Kotlin Multiplatform and Jetpack Compose, and should run on Android and desktop i.e. Linux, Mac and most likely Windows (not verified).
 
@@ -42,7 +42,13 @@ When you type "notes" then they will be recorded at the text entry box, as simpl
 
 ### Play MML
 
-The recorded MML can be compiled as a MIDI sequence and then sent to the target MIDI output device, just like MIDI player does.
+The recorded MML can be compiled as a MIDI sequence and then sent to the target MIDI output device, just like MIDI players do.
+
+### MIDI 2.0 support (kind of)
+
+Since ktmidi supports MIDI 2.0, we leverage the feature in this application. It does not really connect bidirectionally, but sends MIDI-CI Set New Protocol message to the recipient, so unless the recipient refuses to connect unless any further testing (e.g. using MIDI-CI Test New Protocol messages), it would optimisitically work. There is no known host applications that support MIDI 2.0 devices anyways.
+
+Unless you check "MIDI 2.0" option, it will send MIDI 1.0 messages.
 
 ### Combination of all above
 
@@ -54,6 +60,8 @@ Those features can be powerful when they are combined together. For example, you
 The key events cannot be received until kmmk receives pointer event on the button pad, which is not doable on buttons but only doable on the rightmost text labels. It is annoying, but focus events are not designed well yet.
 
 The button pad can be hidden by toggle button (`[+]` Text), but to keep receiving key events until you click on `[*]` button for the same reason.
+
+Android emulators from Google (i.e. the ones you download as part of Android Studio) do not appropriately handle key events and you won't be able to keep key-on states. Hopefully not on Android devices (otherwise the entire API does not make sense), but not sure.
 
 ## License
 
