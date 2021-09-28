@@ -1,15 +1,14 @@
 package dev.atsushieno.kmmk
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import dev.atsushieno.ktmidi.MidiCIProtocolType
 import dev.atsushieno.ktmidi.MidiChannelStatus
 import dev.atsushieno.ktmidi.MidiMusic
+import dev.atsushieno.ktmidi.Midi2Music
 import dev.atsushieno.ktmidi.MidiPlayer
+import dev.atsushieno.ktmidi.Midi1Player
+import dev.atsushieno.ktmidi.Midi2Player
 import dev.atsushieno.ktmidi.Ump
 import dev.atsushieno.ktmidi.UmpFactory
 import dev.atsushieno.ktmidi.ci.MidiCIProtocolTypeInfo
@@ -149,9 +148,17 @@ class KmmkComponentContext(
         }
     }
 
-    fun registerMusic(music: MidiMusic, playOnInput: Boolean) {
+    fun registerMusic1(music: MidiMusic, playOnInput: Boolean) {
         val output = (if (playOnInput) midiDeviceManager.virtualMidiOutput else midiDeviceManager.midiOutput) ?: return
-        val player = MidiPlayer(music, output)
+        val player = Midi1Player(music, output)
+        midiPlayers.add(player)
+        player.finished = Runnable { midiPlayers.remove(player) }
+        player.play()
+    }
+
+    fun registerMusic2(music: Midi2Music, playOnInput: Boolean) {
+        val output = (if (playOnInput) midiDeviceManager.virtualMidiOutput else midiDeviceManager.midiOutput) ?: return
+        val player = Midi2Player(music, output)
         midiPlayers.add(player)
         player.finished = Runnable { midiPlayers.remove(player) }
         player.play()
@@ -215,8 +222,13 @@ class KmmkComponentContext(
         compilationDiagnostics.clear()
         compiler.report = { verbosity, location, message -> compilationDiagnostics.add("$verbosity $location: $message") }
         try {
-            val music = compiler.compile(false, mmlModified)
-            registerMusic(music, playOnInput)
+            if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
+                val music = compiler.compile2(true, false, mmlModified)
+                registerMusic2(music, playOnInput)
+            } else {
+                val music = compiler.compile(false, mmlModified)
+                registerMusic1(music, playOnInput)
+            }
         } catch(ex: MmlException) {
             println(ex)
         }

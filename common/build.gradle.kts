@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.compose") version "1.0.0-alpha3"
 }
 
-val ktmidi_version = "0.3.10"
+val ktmidi_version = "0.3.11"
 
 kotlin {
     android()
