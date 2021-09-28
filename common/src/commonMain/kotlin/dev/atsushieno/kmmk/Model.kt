@@ -1,5 +1,6 @@
 package dev.atsushieno.kmmk
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import dev.atsushieno.ktmidi.MidiCIProtocolType
@@ -47,8 +48,7 @@ class KmmkComponentContext(
     val midiDeviceManager = MidiDeviceManager()
     var midiProtocol = mutableStateOf(MidiCIProtocolType.MIDI1)
 
-    val compilationDiagnostics = mutableListOf<String>()
-    val musics = mutableListOf<MidiMusic>()
+    val compilationDiagnostics = mutableStateListOf<String>()
     val midiPlayers = mutableListOf<MidiPlayer>()
 
     var defaultVelocity : Byte = 100

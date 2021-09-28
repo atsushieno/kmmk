@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import dev.atsushieno.ktmidi.GeneralMidi
 import dev.atsushieno.ktmidi.MidiCIProtocolType
+import dev.atsushieno.composempp.material.AlertDialog
 import dev.atsushieno.composempp.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.ui.unit.sp
@@ -46,6 +47,14 @@ fun App(kmmk: KmmkComponentContext) {
             MusicalKeyboardView(kmmk)
             MidiKeyboardButtonsFoldable(kmmk)
             MmlPad(kmmk)
+            if (!kmmk.compilationDiagnostics.isEmpty()) {
+                val compilationDianogsticsState = remember { kmmk.compilationDiagnostics }
+                val closeDialog = { compilationDianogsticsState.clear() }
+                AlertDialog(onDismissRequest = closeDialog,
+                    confirmButton = { Button(onClick = closeDialog) { Text("OK") } },
+                    text = { Text(compilationDianogsticsState.joinToString("\n")) }
+                )
+            }
         }
     }
 }

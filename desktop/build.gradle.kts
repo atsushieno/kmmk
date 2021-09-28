@@ -12,7 +12,7 @@ repositories {
     maven("https://jitpack.io")
 }
 
-val ktmidi_version = "0.3.10"
+val ktmidi_version = "0.3.11"
 
 kotlin {
     jvm {

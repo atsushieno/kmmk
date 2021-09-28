@@ -4,7 +4,7 @@ plugins {
     kotlin("android")
 }
 
-val ktmidi_version = "0.3.10"
+val ktmidi_version = "0.3.11"
 
 dependencies {
     implementation(project(":common"))
