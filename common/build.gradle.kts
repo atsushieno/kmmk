@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.compose") version "1.0.0-alpha3"
 }
 
-val ktmidi_version = "0.3.11"
+val ktmidi_version = "0.3.13"
 
 kotlin {
     android()
@@ -24,7 +24,7 @@ kotlin {
                 api(compose.ui)
                 // FIXME: shouldn't there be nicer way to simply specify ktmidi API here instead of per-plat sections?
                 implementation("dev.atsushieno:ktmidi:$ktmidi_version")
-                implementation("dev.atsushieno:mugene:0.2.18")
+                implementation("dev.atsushieno:mugene:0.2.20")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1")
                 implementation("com.arkivanov.decompose:decompose:0.3.1")
                 implementation("io.ktor:ktor-io:1.6.1")
@@ -49,10 +49,10 @@ kotlin {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdkVersion(31)
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdkVersion(24)
-        targetSdkVersion(30)
+        targetSdkVersion(31)
     }
 }

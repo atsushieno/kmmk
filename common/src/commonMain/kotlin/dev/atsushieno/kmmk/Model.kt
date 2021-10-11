@@ -12,14 +12,14 @@ import dev.atsushieno.ktmidi.Midi1Player
 import dev.atsushieno.ktmidi.Midi2Player
 import dev.atsushieno.ktmidi.Ump
 import dev.atsushieno.ktmidi.UmpFactory
+import dev.atsushieno.ktmidi.ci.CIFactory
 import dev.atsushieno.ktmidi.ci.MidiCIProtocolTypeInfo
-import dev.atsushieno.ktmidi.ci.midiCIProtocolSet
-import dev.atsushieno.ktmidi.toBytes
 import dev.atsushieno.mugene.MmlCompiler
 import dev.atsushieno.mugene.MmlException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import com.arkivanov.decompose.ComponentContext
+import dev.atsushieno.ktmidi.toPlatformNativeBytes
 import kotlinx.datetime.Clock
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.Runnable
@@ -87,7 +87,7 @@ class KmmkComponentContext(
         noteOnStates[key]++
 
         if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
-            val nOn = Ump(UmpFactory.midi2NoteOn(0, targetChannel, key, 0, defaultVelocity * 0x200, 0)).toBytes()
+            val nOn = Ump(UmpFactory.midi2NoteOn(0, targetChannel, key, 0, defaultVelocity * 0x200, 0)).toPlatformNativeBytes()
             sendToAll(nOn, 0)
         } else {
             val nOn = byteArrayOf((MidiChannelStatus.NOTE_ON + targetChannel).toByte(), key.toByte(), defaultVelocity)
@@ -129,7 +129,7 @@ class KmmkComponentContext(
         }
 
         if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
-            val nOff = Ump(UmpFactory.midi2NoteOff(0, targetChannel, key, 0, 0, 0)).toBytes()
+            val nOff = Ump(UmpFactory.midi2NoteOff(0, targetChannel, key, 0, 0, 0)).toPlatformNativeBytes()
             sendToAll(nOff, 0)
         } else {
             val nOff = byteArrayOf((MidiChannelStatus.NOTE_OFF + targetChannel).toByte(), key.toByte(), 0)
@@ -140,7 +140,7 @@ class KmmkComponentContext(
     fun sendProgramChange(programToChange: Int) {
         this.program.value = programToChange
         if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
-            val nOff = Ump(UmpFactory.midi2Program(0, targetChannel, 0, programToChange, 0, 0)).toBytes()
+            val nOff = Ump(UmpFactory.midi2Program(0, targetChannel, 0, programToChange, 0, 0)).toPlatformNativeBytes()
             sendToAll(nOff, 0)
         } else {
             val bytes = byteArrayOf((MidiChannelStatus.PROGRAM + targetChannel).toByte(), programToChange.toByte())
@@ -240,7 +240,7 @@ class KmmkComponentContext(
         // Generate a MIDI CI Set New Protocol Message...
         val bytes = MutableList<Byte>(19) { 0 }
         val protocolValue: Byte = if (midiProtocol.value == MidiCIProtocolType.MIDI2) 2 else 1
-        midiCIProtocolSet(bytes, 0, 0, 0,
+        CIFactory.midiCIProtocolSet(bytes, 0, 0, 0,
             MidiCIProtocolTypeInfo(protocolValue, 0, 0, 0, 0))
         bytes.add(0, 0xF0.toByte())
         bytes.add(0xF7.toByte())
@@ -253,7 +253,7 @@ class KmmkComponentContext(
             // ... in MIDI2 UMP.
             val umpInBytes = mutableListOf<Byte>()
             UmpFactory.sysex7Process(0, bytes, { p, _ ->
-                umpInBytes.addAll(Ump(p).toBytes().toTypedArray())
+                umpInBytes.addAll(Ump(p).toPlatformNativeBytes().toTypedArray())
             }, null)
             sendToAll(umpInBytes.toByteArray(), 0)
         }
