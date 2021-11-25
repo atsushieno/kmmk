@@ -55,15 +55,15 @@ fun KeyboardRow(kmmk: KmmkComponentContext, octave: Int) {
             val keyId = "Keyboard Octave$octave Key$key"
             TextButton(modifier = Modifier.padding(keyPaddingWidth)
                 .weight(1.0f)
-                .border(keyBorderWidth, Color.Black)
+                .border(keyBorderWidth, Color.Gray)
                 .pointerInput(key1 = keyId) {
                     while (true) {
                         this.awaitPointerEventScope {
-                            awaitPointerEvent(pass = PointerEventPass.Main)
+                            val pe = awaitPointerEvent(pass = PointerEventPass.Initial)
                             kmmk.noteOn(note)
                             while (true)
                                 // FIXME: maybe there is some way to filter events to drop only up to `!pressed`...
-                                if (awaitPointerEvent(pass = PointerEventPass.Main).changes.any { c -> !c.pressed })
+                                if (awaitPointerEvent(pass = PointerEventPass.Final).changes.any { c -> !c.pressed })
                                     break
                             kmmk.noteOff(note)
                         }
