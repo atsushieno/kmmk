@@ -35,12 +35,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.compositeOver
 
 private fun isWhiteKey(key: Int) = when (key) { 0, 2, 4, 5, 7, 9, 11 -> true else -> false }
 
 private val rowHeaderWidth = 20.dp
 private val keyBorderWidth = 1.dp
-private val keyPaddingWidth = 1.dp
+private val keyPaddingWidth = 2.dp
 private val buttonTextSize = 8.5.sp
 private val headerTextSize = 12.sp
 
@@ -54,12 +56,12 @@ fun KeyboardRow(kmmk: KmmkComponentContext, octave: Int) {
             val note = octave * 12 + key
             val keyId = "Keyboard Octave$octave Key$key"
             TextButton(modifier = Modifier.padding(keyPaddingWidth)
+                .height(30.dp)
                 .weight(1.0f)
-                .border(keyBorderWidth, Color.Gray)
                 .pointerInput(key1 = keyId) {
                     while (true) {
                         this.awaitPointerEventScope {
-                            val pe = awaitPointerEvent(pass = PointerEventPass.Initial)
+                            awaitPointerEvent(pass = PointerEventPass.Initial)
                             kmmk.noteOn(note)
                             while (true)
                                 // FIXME: maybe there is some way to filter events to drop only up to `!pressed`...
@@ -70,8 +72,11 @@ fun KeyboardRow(kmmk: KmmkComponentContext, octave: Int) {
                     }
                 },
                 colors = ButtonDefaults.textButtonColors(
+                    // FIXME: it is a compromised solution to the situation that Modifier.border() never worked
+                    //  as expected to correctly surround the button region... We specify non-White color for
+                    //  the white keys indicating that it is in different color than the background
                     backgroundColor = if(kmmk.noteOnStates[note] > 0) Color.Cyan
-                        else if(isWhiteKey(key)) Color.White else Color.DarkGray,
+                        else if(isWhiteKey(key)) Color.White/*.compositeOver(Color.Gray)*/ else Color.DarkGray,
                     contentColor = if(kmmk.noteOnStates[note] > 0) Color.Black
                         else if(isWhiteKey(key)) Color.DarkGray else Color.White),
                 onClick = {}) {

@@ -1,6 +1,7 @@
 package dev.atsushieno.kmmk
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,12 +38,12 @@ import dev.atsushieno.ktmidi.MidiCIProtocolType
 import dev.atsushieno.composempp.material.AlertDialog
 import dev.atsushieno.composempp.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun App(kmmk: KmmkComponentContext) {
     MaterialTheme {
-        Column(modifier = Modifier.wrapContentHeight()) {
+        Column(modifier = Modifier.wrapContentHeight().background(Color(0xE8E8E8E8))) {
             AppSettingsView(kmmk)
             MusicalKeyboardView(kmmk)
             MidiKeyboardButtonsFoldable(kmmk)
