@@ -17,7 +17,6 @@ import dev.atsushieno.ktmidi.ci.MidiCIProtocolTypeInfo
 import dev.atsushieno.mugene.MmlCompiler
 import dev.atsushieno.mugene.MmlException
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import com.arkivanov.decompose.ComponentContext
 import dev.atsushieno.ktmidi.toPlatformNativeBytes
 import kotlinx.datetime.Clock
@@ -259,8 +258,9 @@ class KmmkComponentContext(
         }
         // S6.6 "After the Initiator sends this Set New Protocol message, it shall switch its
         // own Protocol while also waiting 100ms to allow the Responder to switch Protocol."
-        runBlocking {
+        // FIXME: some synchronized wait, or make this function suspend
+        /*GlobalScope.runBlocking {
             delay(100)
-        }
+        }*/
     }
 }
