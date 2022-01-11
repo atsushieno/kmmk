@@ -2,3 +2,4 @@
 .idea
 build
 alsakt-javacpp/src/main/java/dev/atsushieno/alsakt/javacpp
+local.properties
