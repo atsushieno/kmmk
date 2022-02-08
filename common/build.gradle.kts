@@ -25,7 +25,6 @@ kotlin {
                 implementation("dev.atsushieno:ktmidi:$ktmidi_version")
                 implementation("dev.atsushieno:mugene:0.2.26")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.1")
-                implementation("com.arkivanov.decompose:decompose:0.4.0")
                 implementation("io.ktor:ktor-io:1.6.1")
                 implementation("dev.atsushieno:compose-mpp:0.1.3")
             }

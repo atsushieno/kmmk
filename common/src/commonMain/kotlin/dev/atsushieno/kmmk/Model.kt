@@ -7,18 +7,12 @@ import dev.atsushieno.ktmidi.ci.CIFactory
 import dev.atsushieno.ktmidi.ci.MidiCIProtocolTypeInfo
 import dev.atsushieno.mugene.MmlCompiler
 import dev.atsushieno.mugene.MmlException
-import com.arkivanov.decompose.ComponentContext
 import dev.atsushieno.ktmidi.*
 import kotlinx.datetime.Clock
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.Runnable
 
-interface Kmmk {}
-
-// FIXME: should be declared as an interface?
-class KmmkComponentContext(
-    componentContext: ComponentContext
-) : Kmmk, ComponentContext by componentContext {
+class KmmkComponentContext {
     // states
 
     // In this application, we record the *number of* note-ons for each key, instead of an on-off state flag

@@ -11,8 +11,7 @@ import dev.atsushieno.ktmidi.JvmMidiAccess
 import dev.atsushieno.ktmidi.RtMidiAccess
 
 fun main(args: Array<String>) = singleWindowApplication {
-    val lifecycle = LifecycleRegistry()
-    val kmmk = KmmkComponentContext(DefaultComponentContext(lifecycle))
+    val kmmk = KmmkComponentContext()
     kmmk.midiDeviceManager.midiAccess =
         if (File("/dev/snd/seq").exists()) AlsaMidiAccess()
         else if (args.contains("jvm")) JvmMidiAccess()
