@@ -3,22 +3,12 @@ package dev.atsushieno.kmmk
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import dev.atsushieno.ktmidi.MidiCIProtocolType
-import dev.atsushieno.ktmidi.MidiChannelStatus
-import dev.atsushieno.ktmidi.MidiMusic
-import dev.atsushieno.ktmidi.Midi2Music
-import dev.atsushieno.ktmidi.MidiPlayer
-import dev.atsushieno.ktmidi.Midi1Player
-import dev.atsushieno.ktmidi.Midi2Player
-import dev.atsushieno.ktmidi.Ump
-import dev.atsushieno.ktmidi.UmpFactory
 import dev.atsushieno.ktmidi.ci.CIFactory
 import dev.atsushieno.ktmidi.ci.MidiCIProtocolTypeInfo
 import dev.atsushieno.mugene.MmlCompiler
 import dev.atsushieno.mugene.MmlException
-import kotlinx.coroutines.delay
 import com.arkivanov.decompose.ComponentContext
-import dev.atsushieno.ktmidi.toPlatformNativeBytes
+import dev.atsushieno.ktmidi.*
 import kotlinx.datetime.Clock
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.Runnable
@@ -29,9 +19,7 @@ interface Kmmk {}
 class KmmkComponentContext(
     componentContext: ComponentContext
 ) : Kmmk, ComponentContext by componentContext {
-    val noteNames = arrayOf("c", "c+", "d", "d+", "e", "f", "f+", "g", "g+", "a", "a+", "b")
-
-    var mmlText = mutableStateOf("")
+    // states
 
     // In this application, we record the *number of* note-ons for each key, instead of an on-off state flag
     // so that it can technically send more than one note on operations on the same key.
@@ -44,18 +32,27 @@ class KmmkComponentContext(
     var shouldOutputNoteLength = mutableStateOf(false)
     var currentTempo = mutableStateOf(120.0)
 
-    val midiDeviceManager = MidiDeviceManager()
     var midiProtocol = mutableStateOf(MidiCIProtocolType.MIDI1)
 
     val compilationDiagnostics = mutableStateListOf<String>()
     val midiPlayers = mutableListOf<MidiPlayer>()
 
+    // FIXME: once we sort out which development model to take, take it out from "model".
+    var program = mutableStateOf(0)
+
+    var mmlText = mutableStateOf("")
+
+    var midiOutputPorts = mutableStateListOf<MidiPortDetails>()
+
+    // non-states
+
+    val noteNames = arrayOf("c", "c+", "d", "d+", "e", "f", "f+", "g", "g+", "a", "a+", "b")
+
+    val midiDeviceManager = MidiDeviceManager()
+
     var defaultVelocity : Byte = 100
     private var currentMmlOctave = 5
     private var lastNoteOnTime = Clock.System.now()
-
-    // FIXME: once we sort out which development model to take, take it out from "model".
-    var program = mutableStateOf(0)
 
     private fun sendToAll(bytes: ByteArray, timestamp: Long) {
         midiDeviceManager.midiOutput?.send(bytes, 0, bytes.size, timestamp)
@@ -262,5 +259,10 @@ class KmmkComponentContext(
         /*GlobalScope.runBlocking {
             delay(100)
         }*/
+    }
+
+    fun updateMidiDeviceList() {
+        midiOutputPorts.clear()
+        midiOutputPorts.addAll(midiDeviceManager.midiOutputPorts)
     }
 }

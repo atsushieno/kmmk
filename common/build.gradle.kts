@@ -22,7 +22,6 @@ kotlin {
                 api(compose.foundation)
                 api(compose.material)
                 api(compose.ui)
-                // FIXME: shouldn't there be nicer way to simply specify ktmidi API here instead of per-plat sections?
                 implementation("dev.atsushieno:ktmidi:$ktmidi_version")
                 implementation("dev.atsushieno:mugene:0.2.26")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.1")
