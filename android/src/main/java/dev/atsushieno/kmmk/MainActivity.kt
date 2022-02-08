@@ -22,4 +22,14 @@ class MainActivity : AppCompatActivity() {
             App(kmmk)
         }
     }
+
+    private var lastBackPressed = System.currentTimeMillis()
+
+    override fun onBackPressed() {
+        if (System.currentTimeMillis() - lastBackPressed < 2000)
+                exitProcess(0)
+        else
+            Toast.makeText(this, "Tap once more to quit", Toast.LENGTH_SHORT).show()
+        lastBackPressed = System.currentTimeMillis()
+    }
 }
