@@ -3,7 +3,7 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.0.0"
+    id("org.jetbrains.compose") version "1.0.1"
 }
 
 repositories {
@@ -27,8 +27,6 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation("dev.atsushieno:ktmidi-jvm:$ktmidi_version")
                 implementation("dev.atsushieno:ktmidi-jvm-desktop:$ktmidi_version")
-                implementation("com.arkivanov.decompose:decompose:0.4.0")
-                implementation("com.arkivanov.decompose:extensions-compose-jetbrains:0.4.0")
             }
         }
         val jvmTest by getting

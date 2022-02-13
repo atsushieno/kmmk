@@ -1,5 +1,5 @@
 plugins {
-    id("org.jetbrains.compose") version "1.0.0"
+    id("org.jetbrains.compose") version "1.0.1"
     id("com.android.application")
     kotlin("android")
 }
@@ -10,8 +10,6 @@ dependencies {
     implementation(project(":common"))
     implementation("androidx.activity:activity-compose:1.4.0")
     implementation("dev.atsushieno:ktmidi-android:$ktmidi_version")
-    implementation("com.arkivanov.decompose:decompose:0.4.0")
-    implementation("com.arkivanov.decompose:extensions-compose-jetpack:0.4.0")
 }
 
 android {

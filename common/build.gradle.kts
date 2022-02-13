@@ -3,7 +3,7 @@ import org.jetbrains.compose.compose
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.0.0"
+    id("org.jetbrains.compose") version "1.0.1"
 }
 
 val ktmidi_version = "0.3.16"
@@ -32,7 +32,7 @@ kotlin {
         val commonTest by getting
         val androidMain by getting {
             dependencies {
-                api("androidx.appcompat:appcompat:1.4.0")
+                api("androidx.appcompat:appcompat:1.4.1")
                 api("androidx.core:core-ktx:1.7.0")
             }
         }
