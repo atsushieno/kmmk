@@ -1,5 +1,8 @@
 package dev.atsushieno.kmmk
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import dev.atsushieno.ktmidi.EmptyMidiAccess
 import dev.atsushieno.ktmidi.MidiAccess
 import dev.atsushieno.ktmidi.MidiInput
@@ -57,6 +60,8 @@ class MidiDeviceManager {
             runBlocking {
                 midiOutput?.close()
                 midiOutput = if (id != null) midiAccessValue.openOutputAsync(id) else emptyMidiOutput
+                midiOutputError.value = null
+                virtualMidiOutputError.value = null
                 midiOutputOpened()
             }
         }
@@ -67,6 +72,24 @@ class MidiDeviceManager {
     var midiInput: MidiInput? = null
     var midiOutput: MidiOutput? = null
     var virtualMidiOutput: MidiOutput? = null
+
+    var midiOutputError = mutableStateOf<Exception?>(null)
+    var virtualMidiOutputError = mutableStateOf<Exception?>(null)
+
+    fun sendToAll(bytes: ByteArray, timestamp: Long) {
+        try {
+            if (midiOutputError.value == null)
+                midiOutput?.send(bytes, 0, bytes.size, timestamp)
+        } catch (ex: Exception) {
+            midiOutputError.value = ex
+        }
+        try {
+            if (virtualMidiOutputError.value == null)
+                virtualMidiOutput?.send(bytes, 0, bytes.size, timestamp)
+        } catch (ex: Exception) {
+            virtualMidiOutputError.value = ex
+        }
+    }
 
     init {
         runBlocking {

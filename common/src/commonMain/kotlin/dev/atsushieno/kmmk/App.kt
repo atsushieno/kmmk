@@ -72,6 +72,32 @@ fun AppSettingsView(kmmk: KmmkComponentContext) {
                 MidiDeviceSelector(kmmk)
             }
             Column {
+                val midiOutputError by remember { kmmk.midiDeviceManager.midiOutputError }
+                if (midiOutputError != null) {
+                    var showErrorDetails by remember { mutableStateOf(false) }
+                    if (showErrorDetails) {
+                        val closeDeviceErrorDialog = { showErrorDetails = false }
+                        AlertDialog(onDismissRequest = closeDeviceErrorDialog,
+                            confirmButton = { Button(onClick = closeDeviceErrorDialog) { Text("OK") } },
+                            title = { Text("MIDI device error") },
+                            text = {
+                                Column {
+                                    Row {
+                                        Text("MIDI output is disabled until new device is selected.")
+                                    }
+                                    Row {
+                                        Text(midiOutputError?.message ?: "(error details lost...)")
+                                    }
+                                }
+                            }
+                        )
+                    }
+                    Button(onClick = { showErrorDetails = true }) {
+                        Text(text = "!!", color = Color.Red)
+                    }
+                }
+            }
+            Column {
                 Text(text = "Oct.: ${kmmk.octaveShift.value} / Trans.: ${kmmk.noteShift.value}",
                     modifier = Modifier.padding(12.dp))
             }

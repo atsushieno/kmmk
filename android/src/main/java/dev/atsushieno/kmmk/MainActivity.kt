@@ -20,8 +20,10 @@ class MainActivity : AppCompatActivity() {
     private var lastBackPressed = System.currentTimeMillis()
 
     override fun onBackPressed() {
-        if (System.currentTimeMillis() - lastBackPressed < 2000)
-                finish()
+        if (System.currentTimeMillis() - lastBackPressed < 2000) {
+            finish()
+            exitProcess(0)
+        }
         else
             Toast.makeText(this, "Tap once more to quit", Toast.LENGTH_SHORT).show()
         lastBackPressed = System.currentTimeMillis()

@@ -49,8 +49,7 @@ class KmmkComponentContext {
     private var lastNoteOnTime = Clock.System.now()
 
     private fun sendToAll(bytes: ByteArray, timestamp: Long) {
-        midiDeviceManager.midiOutput?.send(bytes, 0, bytes.size, timestamp)
-        midiDeviceManager.virtualMidiOutput?.send(bytes, 0, bytes.size, timestamp)
+        midiDeviceManager.sendToAll(bytes, timestamp)
     }
 
     private val targetChannel: Int
