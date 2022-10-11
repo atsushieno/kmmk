@@ -49,7 +49,7 @@ class MidiDeviceManager {
         set(id) {
             runBlocking {
                 midiInput?.close()
-                midiInput = if (id != null) midiAccessValue.openInputAsync(id) else emptyMidiInput
+                midiInput = if (id != null) midiAccessValue.openInput(id) else emptyMidiInput
                 midiInputOpened()
             }
         }
@@ -59,7 +59,7 @@ class MidiDeviceManager {
         set(id) {
             runBlocking {
                 midiOutput?.close()
-                midiOutput = if (id != null) midiAccessValue.openOutputAsync(id) else emptyMidiOutput
+                midiOutput = if (id != null) midiAccessValue.openOutput(id) else emptyMidiOutput
                 midiOutputError.value = null
                 virtualMidiOutputError.value = null
                 midiOutputOpened()
@@ -93,8 +93,8 @@ class MidiDeviceManager {
 
     init {
         runBlocking {
-            emptyMidiInput = emptyMidiAccess.openInputAsync(emptyMidiAccess.inputs.first().id)
-            emptyMidiOutput = emptyMidiAccess.openOutputAsync(emptyMidiAccess.outputs.first().id)
+            emptyMidiInput = emptyMidiAccess.openInput(emptyMidiAccess.inputs.first().id)
+            emptyMidiOutput = emptyMidiAccess.openOutput(emptyMidiAccess.outputs.first().id)
         }
     }
 }

@@ -1,12 +1,13 @@
 package dev.atsushieno.kmmk
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.ButtonDefaults
@@ -22,19 +23,18 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
 
@@ -53,33 +53,31 @@ fun KeyboardRow(kmmk: KmmkComponentContext, octave: Int) {
         Text(modifier = Modifier.width(rowHeaderWidth), text = "o$octave", fontSize = headerTextSize)
 
         for (key in 0..11) {
+            val interactionSource = remember { MutableInteractionSource() }
+
             val note = octave * 12 + key
-            val keyId = "Keyboard Octave$octave Key$key"
-            TextButton(modifier = Modifier.padding(keyPaddingWidth)
-                .height(30.dp)
-                .weight(1.0f)
-                .pointerInput(key1 = keyId) {
-                    while (true) {
-                        this.awaitPointerEventScope {
-                            awaitPointerEvent(pass = PointerEventPass.Initial)
-                            kmmk.noteOn(note)
-                            while (true)
-                                // FIXME: maybe there is some way to filter events to drop only up to `!pressed`...
-                                if (awaitPointerEvent(pass = PointerEventPass.Final).changes.any { c -> !c.pressed })
-                                    break
-                            kmmk.noteOff(note)
-                        }
+
+            LaunchedEffect(interactionSource) {
+                interactionSource.interactions.collect { interaction ->
+                    when (interaction) {
+                        is PressInteraction.Press -> { kmmk.noteOn(note) }
+                        is PressInteraction.Release -> { kmmk.noteOff(note) }
+                        is PressInteraction.Cancel -> { kmmk.noteOff(note) }
                     }
-                },
+                }
+            }
+
+            TextButton(interactionSource = interactionSource,
+                modifier = Modifier.padding(keyPaddingWidth).height(30.dp).weight(1.0f),
                 colors = ButtonDefaults.textButtonColors(
                     // FIXME: it is a compromised solution to the situation that Modifier.border() never worked
                     //  as expected to correctly surround the button region... We specify non-White color for
                     //  the white keys indicating that it is in different color than the background
-                    backgroundColor = if(kmmk.noteOnStates[note] > 0) Color.Cyan
-                        else if(isWhiteKey(key)) Color.White/*.compositeOver(Color.Gray)*/ else Color.DarkGray,
-                    contentColor = if(kmmk.noteOnStates[note] > 0) Color.Black
-                        else if(isWhiteKey(key)) Color.DarkGray else Color.White),
-                onClick = {}) {
+                    backgroundColor = if (kmmk.noteOnStates[note] > 0) Color.Cyan
+                    else if (isWhiteKey(key)) Color.White/*.compositeOver(Color.Gray)*/ else Color.DarkGray,
+                    contentColor = if (kmmk.noteOnStates[note] > 0) Color.Black
+                    else if (isWhiteKey(key)) Color.DarkGray else Color.White
+                ), onClick = {}) {
                 Text(text = kmmk.noteNames[key % 12], fontSize = buttonTextSize)
             }
         }
@@ -118,12 +116,12 @@ fun KeyEventRecipient(kmmk: KmmkComponentContext, modifier: Modifier = Modifier,
             if (evt.type == KeyEventType.KeyDown) {
                 if (!activeKeys[note]) {
                     activeKeys[note] = true
-                    GlobalScope.launch { kmmk.noteOn(note) }
+                    kmmk.noteOn(note)
                 }
             } else if (evt.type == KeyEventType.KeyUp) {
                 if (activeKeys[note]) {
                     activeKeys[note] = false
-                    GlobalScope.launch { kmmk.noteOff(note) }
+                    kmmk.noteOff(note)
                 }
             }
             return@onKeyEvent true
