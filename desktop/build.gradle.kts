@@ -39,6 +39,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "kmmk"
+            // LAMESPEC: cannot specify the actual app version due to this bug https://github.com/JetBrains/compose-jb/issues/2360
             packageVersion = "1.0.0"
         }
     }
