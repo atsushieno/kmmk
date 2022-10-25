@@ -34,7 +34,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
 
@@ -131,6 +133,10 @@ fun KeyEventRecipient(kmmk: KmmkComponentContext, modifier: Modifier = Modifier,
         .clickable { focusRequester.requestFocus() }) {
         content()
     }
+
+    SideEffect {
+        focusRequester.requestFocus()
+    }
 }
 
 @Composable
@@ -138,9 +144,6 @@ fun MidiKeyboardButtonsFoldable(kmmk: KmmkComponentContext) {
     var foldState by remember { mutableStateOf(false) }
 
     Row {
-        KeyEventRecipient(kmmk) {
-            Text("[*]")
-        }
         Text(if (foldState) "[+]" else "[-]", modifier = Modifier.clickable { foldState = !foldState })
     }
     if (!foldState) {

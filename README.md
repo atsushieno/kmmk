@@ -57,11 +57,9 @@ Those features can be powerful when they are combined together. For example, you
 
 ## Miscellaneous Notes
 
-The key events cannot be received until kmmk receives pointer event on the button pad, which is not doable on buttons but only doable on the rightmost text labels. It is annoying, but focus events are not designed well yet.
+The button pad can be hidden by toggle button (`[+]` Text).
 
-The button pad can be hidden by toggle button (`[+]` Text), but to keep receiving key events until you click on `[*]` button for the same reason.
-
-Android emulators from Google (i.e. the ones you download as part of Android Studio) do not appropriately handle key events and you won't be able to keep key-on states. Hopefully not on Android devices (otherwise the entire API does not make sense), but not sure.
+Android emulators from Google (i.e. the ones you download as part of Android Studio) do not appropriately handle key events and you won't be able to keep key-on states. Hopefully not on Android devices (otherwise the entire API does not make sense), but not sure. It should work perfectly on desktop (it is verified on Ubuntu 22.04).
 
 ## License
 
