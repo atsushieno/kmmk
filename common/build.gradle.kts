@@ -3,14 +3,14 @@ import org.jetbrains.compose.compose
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.3.0"
+    id("org.jetbrains.compose") version "1.4.0"
 }
 
 val ktmidi_version = "0.5.0"
 val mugene_version = "0.4.0"
 
 kotlin {
-    jvmToolchain(11)
+    jvmToolchain(17)
     android()
     jvm("desktop")
     sourceSets {
