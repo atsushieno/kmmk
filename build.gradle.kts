@@ -12,7 +12,7 @@ buildscript {
 
 subprojects {
     group = "dev.atsushieno"
-    version = "0.3"
+    version = "0.4"
 
     repositories {
         mavenLocal()
