@@ -21,6 +21,8 @@ fun main(args: Array<String>) = application {
         kmmk.midiDeviceManager.midiAccess =
             if (File("/dev/snd/seq").exists()) AlsaMidiAccess()
             else if (args.contains("jvm")) JvmMidiAccess()
+            else if (System.getProperty("os.name").contains("Mac OS", true) &&
+                System.getProperty("os.arch").contains("aarch64")) JvmMidiAccess()
             else RtMidiAccess()
         App(kmmk)
     }

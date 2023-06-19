@@ -1,10 +1,10 @@
 plugins {
-    id("org.jetbrains.compose") version "1.2.0-rc01"
+    id("org.jetbrains.compose") version "1.3.0"
     id("com.android.application")
     kotlin("android")
 }
 
-val ktmidi_version = "0.4.0"
+val ktmidi_version = "0.5.0"
 
 dependencies {
     implementation(project(":common"))

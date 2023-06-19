@@ -241,9 +241,9 @@ class KmmkComponentContext {
         } else {
             // ... in MIDI2 UMP.
             val umpInBytes = mutableListOf<Byte>()
-            UmpFactory.sysex7Process(0, bytes, { p, _ ->
-                umpInBytes.addAll(Ump(p).toPlatformNativeBytes().toTypedArray())
-            }, null)
+            UmpFactory.sysex7Process(0, bytes) { l, _ ->
+                umpInBytes.addAll(Ump(l).toPlatformNativeBytes().toTypedArray())
+            }
             sendToAll(umpInBytes.toByteArray(), 0)
         }
         // S6.6 "After the Initiator sends this Set New Protocol message, it shall switch its
