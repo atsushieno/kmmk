@@ -12,8 +12,6 @@ repositories {
     maven("https://jitpack.io")
 }
 
-val ktmidi_version = "0.5.1"
-
 kotlin {
     jvm {
         compilations.all {
@@ -25,8 +23,8 @@ kotlin {
             dependencies {
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
-                implementation("dev.atsushieno:ktmidi:$ktmidi_version")
-                implementation("dev.atsushieno:ktmidi-jvm-desktop:$ktmidi_version")
+                implementation(libs.ktmidi)
+                implementation(libs.ktmidi.jvm.desktop)
             }
         }
         val jvmTest by getting

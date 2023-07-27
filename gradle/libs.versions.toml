@@ -1,0 +1,31 @@
+[versions]
+activity-compose = "1.7.2"
+appcompat = "1.6.1"
+compose-mpp = "0.1.3"
+core-ktx = "1.10.1"
+gradle = "8.0.2"
+junit = "4.13.2"
+kotlin-gradle-plugin = "1.7.20"
+kotlinx-datetime = "0.4.0"
+ktmidi = "0.5.1"
+ktor-io = "2.3.0"
+mugene = "0.4.0"
+
+[libraries]
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+compose-mpp = { module = "dev.atsushieno:compose-mpp", version.ref = "compose-mpp" }
+core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+junit = { module = "junit:junit", version.ref = "junit" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin-gradle-plugin" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+ktmidi = { module = "dev.atsushieno:ktmidi", version.ref = "ktmidi" }
+ktmidi-jvm-desktop = { module = "dev.atsushieno:ktmidi-jvm-desktop", version.ref = "ktmidi" }
+ktor-io = { module = "io.ktor:ktor-io", version.ref = "ktor-io" }
+mugene = { module = "dev.atsushieno:mugene", version.ref = "mugene" }
+
+[plugins]
+
+[bundles]
+

@@ -4,9 +4,6 @@ plugins {
     id("org.jetbrains.compose") version "1.4.3"
 }
 
-val ktmidi_version = "0.5.1"
-val mugene_version = "0.4.0"
-
 kotlin {
     jvmToolchain(17)
     android()
@@ -18,23 +15,23 @@ kotlin {
                 api(compose.foundation)
                 api(compose.material)
                 api(compose.ui)
-                implementation("dev.atsushieno:ktmidi:$ktmidi_version")
-                implementation("dev.atsushieno:mugene:$mugene_version")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
-                implementation("io.ktor:ktor-io:2.3.0")
-                implementation("dev.atsushieno:compose-mpp:0.1.3")
+                implementation(libs.ktmidi)
+                implementation(libs.mugene)
+                implementation(libs.kotlinx.datetime)
+                implementation(libs.ktor.io)
+                implementation(libs.compose.mpp)
             }
         }
         val commonTest by getting
         val androidMain by getting {
             dependencies {
-                api("androidx.appcompat:appcompat:1.6.1")
-                api("androidx.core:core-ktx:1.9.0")
+                api(libs.appcompat)
+                api(libs.core.ktx)
             }
         }
         val androidTest by getting {
             dependencies {
-                implementation("junit:junit:4.13.2")
+                implementation(libs.junit)
             }
         }
         val desktopMain by getting
@@ -43,7 +40,7 @@ kotlin {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = 34
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 24

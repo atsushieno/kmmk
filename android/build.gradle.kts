@@ -4,12 +4,10 @@ plugins {
     kotlin("android")
 }
 
-val ktmidi_version = "0.5.1"
-
 dependencies {
     implementation(project(":common"))
-    implementation("androidx.activity:activity-compose:1.7.2")
-    implementation("dev.atsushieno:ktmidi:$ktmidi_version")
+    implementation(libs.activity.compose)
+    implementation(libs.ktmidi)
 }
 
 android {

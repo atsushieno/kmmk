@@ -25,7 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.atsushieno.ktmidi.GeneralMidi
+import dev.atsushieno.ktmidi.GeneralMidi2
 import dev.atsushieno.ktmidi.MidiCIProtocolType
 import dev.atsushieno.composempp.material.AlertDialog
 import dev.atsushieno.composempp.material.DropdownMenu
@@ -150,7 +150,7 @@ fun ProgramSelector(kmmk: KmmkComponentContext) {
                 programCategoryState = -1
                 programCategoryDialogState = (selection == -2)
             }
-            GeneralMidi.INSTRUMENT_NAMES.drop(programCategoryState * 8).take(8).forEachIndexed { index, program ->
+            GeneralMidi2.instrumentNames.drop(programCategoryState * 8).take(8).forEachIndexed { index, program ->
                 val programValue = programCategoryState * 8 + index
                 DropdownMenuItem(onClick = { onSelectProgram(programValue) }) { Text("${programValue}: $program") }
             }
@@ -160,7 +160,7 @@ fun ProgramSelector(kmmk: KmmkComponentContext) {
                 programCategoryState = category
                 programCategoryDialogState = false
             }
-            GeneralMidi.INSTRUMENT_CATEGORIES.forEachIndexed { index, category ->
+            GeneralMidi2.categories.forEachIndexed { index, category ->
                 DropdownMenuItem(onClick = { onSelectCategory(index) }) { Text("${index * 8}: $category") }
             }
         }
@@ -169,7 +169,7 @@ fun ProgramSelector(kmmk: KmmkComponentContext) {
         modifier = Modifier.clickable(onClick = { programCategoryDialogState = true }).padding(12.dp),
         border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
     ) {
-        Text(GeneralMidi.INSTRUMENT_NAMES[kmmk.program.value])
+        Text(GeneralMidi2.instrumentNames[kmmk.program.value])
     }
 }
 
