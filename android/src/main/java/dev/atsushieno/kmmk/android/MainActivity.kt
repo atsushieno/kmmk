@@ -1,10 +1,11 @@
-package dev.atsushieno.kmmk
+package dev.atsushieno.kmmk.android
 
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
+import dev.atsushieno.kmmk.*
 import dev.atsushieno.ktmidi.AndroidMidiAccess
 import kotlin.system.exitProcess
 

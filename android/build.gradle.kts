@@ -1,10 +1,10 @@
 plugins {
-    id("org.jetbrains.compose") version "1.4.0"
+    id("org.jetbrains.compose") version "1.4.3"
     id("com.android.application")
     kotlin("android")
 }
 
-val ktmidi_version = "0.5.0"
+val ktmidi_version = "0.5.1"
 
 dependencies {
     implementation(project(":common"))
@@ -25,4 +25,5 @@ android {
             isMinifyEnabled = false
         }
     }
+    namespace = "dev.atsushieno.kmmk.android"
 }

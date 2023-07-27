@@ -1,12 +1,10 @@
-import org.jetbrains.compose.compose
-
 plugins {
     id("com.android.library")
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.4.0"
+    id("org.jetbrains.compose") version "1.4.3"
 }
 
-val ktmidi_version = "0.5.0"
+val ktmidi_version = "0.5.1"
 val mugene_version = "0.4.0"
 
 kotlin {
@@ -50,4 +48,5 @@ android {
     defaultConfig {
         minSdk = 24
     }
+    namespace = "dev.atsushieno.kmmk"
 }
