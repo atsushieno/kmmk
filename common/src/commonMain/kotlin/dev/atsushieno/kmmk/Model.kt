@@ -137,7 +137,7 @@ class KmmkComponentContext {
         }
     }
 
-    fun registerMusic1(music: MidiMusic, playOnInput: Boolean) {
+    fun registerMusic1(music: Midi1Music, playOnInput: Boolean) {
         val output = (if (playOnInput) midiDeviceManager.virtualMidiOutput else midiDeviceManager.midiOutput) ?: return
         val player = Midi1Player(music, output)
         midiPlayers.add(player)
@@ -212,7 +212,7 @@ class KmmkComponentContext {
         compiler.report = { verbosity, location, message -> compilationDiagnostics.add("$verbosity $location: $message") }
         try {
             if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
-                val music = compiler.compile2(true, false, mmlModified)
+                val music = compiler.compile2(false, mmlModified)
                 registerMusic2(music, playOnInput)
             } else {
                 val music = compiler.compile(false, mmlModified)
