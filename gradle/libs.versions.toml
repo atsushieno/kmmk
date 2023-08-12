@@ -9,7 +9,7 @@ kotlin-gradle-plugin = "1.7.20"
 kotlinx-datetime = "0.4.0"
 ktmidi = "0.6.0-preview3"
 ktor-io = "2.3.0"
-mugene = "0.4.1"
+mugene = "0.4.3"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
