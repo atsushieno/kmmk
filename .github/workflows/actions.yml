@@ -28,7 +28,7 @@ jobs:
         sudo apt-get update
 
     - name: build
-      run: ./gradlew assembleRelease package
+      run: ./gradlew build package
 
     - name: upload build failure logs
       if: failure()
@@ -38,19 +38,15 @@ jobs:
         path: |
           composeApp/build/reports/
 
-    - name: upload artifact - Android
-      if: success()
-      uses: actions/upload-artifact@v4
-      with:
-        name: kmmk-android
-        path:
-          composeApp/build/outputs/bundle/release/*.aab
-    - name: upload artifact - Desktop
+    - name: upload artifact
       if: success()
       uses: actions/upload-artifact@v4
       with:
         name: kmmk-${{ matrix.os }}
         path: |
+          composeApp/build/outputs/apk/debug/*.apk
+          composeApp/build/outputs/bundle/release/*.aab
+          composeApp/build/dist/wasmJs/
           composeApp/build/compose/binaries/main/deb/*.deb
           composeApp/build/compose/binaries/main/dmg/*.dmg
           composeApp/build/compose/binaries/main/msi/*.msi
