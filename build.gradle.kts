@@ -1,18 +1,16 @@
-buildscript {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath(libs.kotlin.gradle.plugin)
-        classpath(libs.gradle)
-    }
+plugins {
+    // this is necessary to avoid the plugins to be loaded multiple times
+    // in each subproject's classloader
+    alias(libs.plugins.androidApplication) apply false
+    alias(libs.plugins.androidLibrary) apply false
+    alias(libs.plugins.jetbrainsCompose) apply false
+    alias(libs.plugins.kotlinMultiplatform) apply false
+    alias(libs.plugins.javacppPlatformPlugin) apply false
 }
 
 subprojects {
     group = "dev.atsushieno"
-    version = "0.4"
+    version = "0.5"
 
     repositories {
         mavenLocal()
