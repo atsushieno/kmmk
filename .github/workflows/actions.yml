@@ -26,8 +26,10 @@ jobs:
       if: matrix.os == 'ubuntu-22.04'
       run: |
         sudo apt-get update
+
     - name: build
       run: ./gradlew package
+
     - name: upload build failure logs
       if: failure()
       uses: actions/upload-artifact@v4
@@ -36,3 +38,19 @@ jobs:
         path: |
           composeApp/build/reports/
 
+    - name: upload artifact - Android
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: kmmk-android
+        path:
+          composeApp/build/outputs/apk/release/*.apk
+    - name: upload artifact - Desktop
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: kmmk-${{ matrix.os }}
+        path: |
+          composeApp/build/compose/binaries/main/deb/*.deb
+          composeApp/build/compose/binaries/main/dmg/*.dmg
+          composeApp/build/compose/binaries/main/msi/*.msi
