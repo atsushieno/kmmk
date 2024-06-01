@@ -9,5 +9,3 @@ enum class KeyEventCursorType {
     UP,
     DOWN
 }
-
-expect fun getCursorKeyInput(e: KeyEvent): KeyEventCursorType

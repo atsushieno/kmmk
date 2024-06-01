@@ -3,22 +3,22 @@ agp = "8.2.2"
 android-compileSdk = "34"
 android-minSdk = "24"
 android-targetSdk = "34"
-androidx-activityCompose = "1.8.2"
-androidx-appcompat = "1.6.1"
+androidx-activityCompose = "1.9.0"
+androidx-appcompat = "1.7.0"
 androidx-constraintlayout = "2.1.4"
-androidx-core-ktx = "1.12.0"
+androidx-core-ktx = "1.13.1"
 androidx-espresso-core = "3.5.1"
-androidx-material = "1.11.0"
+androidx-material = "1.12.0"
 androidx-test-junit = "1.1.5"
-compose = "1.6.5"
-compose-plugin = "1.6.2"
+compose = "1.6.7"
+compose-plugin = "1.6.10"
 junit = "4.13.2"
-kotlin = "1.9.23"
+kotlin = "2.0.0"
 
-kotlinx-datetime = "0.5.0"
+kotlinx-datetime = "0.6.0"
 rtmidi-javacpp = "0.1.5"
-ktmidi = "0.8.2"
-ktor-io = "2.3.7"
+ktmidi = "0.9.0"
+ktor-io = "2.3.11"
 mugene = "0.5.0"
 javacpp-platform-plugin = "1.5.10"
 
@@ -50,3 +50,4 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 javacppPlatformPlugin = { id = "org.bytedeco.gradle-javacpp-platform", version.ref = "javacpp-platform-plugin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

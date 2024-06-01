@@ -86,6 +86,15 @@ fun KeyboardRow(kmmk: KmmkComponentContext, octave: Int) {
     }
 }
 
+fun getCursorKeyInput(e: KeyEvent): KeyEventCursorType {
+    return when (e.key) {
+        Key.DirectionLeft -> KeyEventCursorType.LEFT
+        Key.DirectionRight -> KeyEventCursorType.RIGHT
+        Key.DirectionUp -> KeyEventCursorType.UP
+        Key.DirectionDown -> KeyEventCursorType.DOWN
+        else -> KeyEventCursorType.NONE
+    }
+}
 
 fun isCursorEventHandled(evt: KeyEvent, kmmk: KmmkComponentContext): Boolean {
     val cursor = getCursorKeyInput(evt)
