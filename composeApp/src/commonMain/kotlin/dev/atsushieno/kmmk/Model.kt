@@ -24,7 +24,7 @@ class KmmkComponentContext {
     var shouldOutputNoteLength = mutableStateOf(false)
     var currentTempo = mutableStateOf(120.0)
 
-    var midiProtocol = mutableStateOf(MidiCIProtocolType.MIDI1)
+    var midiProtocol = mutableStateOf(MidiTransportProtocol.MIDI1)
 
     val compilationDiagnostics = mutableStateListOf<String>()
     val midiPlayers = mutableListOf<MidiPlayer>()
@@ -73,7 +73,7 @@ class KmmkComponentContext {
 
         noteOnStates[key]++
 
-        if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
+        if (midiProtocol.value == MidiTransportProtocol.UMP) {
             val nOn = Ump(UmpFactory.midi2NoteOn(0, targetChannel, key, 0, defaultVelocity * 0x200, 0)).toPlatformNativeBytes()
             sendToAll(nOn, 0)
         } else {
@@ -115,7 +115,7 @@ class KmmkComponentContext {
             mmlText.value += lengthSpec
         }
 
-        if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
+        if (midiProtocol.value == MidiTransportProtocol.UMP) {
             val nOff = Ump(UmpFactory.midi2NoteOff(0, targetChannel, key, 0, 0, 0)).toPlatformNativeBytes()
             sendToAll(nOff, 0)
         } else {
@@ -126,7 +126,7 @@ class KmmkComponentContext {
 
     fun sendProgramChange(programToChange: Int) {
         this.program.value = programToChange
-        if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
+        if (midiProtocol.value == MidiTransportProtocol.UMP) {
             val nOff = Ump(UmpFactory.midi2Program(0, targetChannel, 0, programToChange, 0, 0)).toPlatformNativeBytes()
             sendToAll(nOff, 0)
         } else {
@@ -209,7 +209,7 @@ class KmmkComponentContext {
         compilationDiagnostics.clear()
         compiler.report = { verbosity, location, message -> compilationDiagnostics.add("$verbosity $location: $message") }
         try {
-            if (midiProtocol.value == MidiCIProtocolType.MIDI2) {
+            if (midiProtocol.value == MidiTransportProtocol.UMP) {
                 val music = compiler.compile2(false, mmlModified)
                 registerMusic2(music, playOnInput)
             } else {
@@ -222,7 +222,7 @@ class KmmkComponentContext {
     }
 
     fun onMidiProtocolUpdated() {
-        midiProtocol.value = if (midiProtocol.value == MidiCIProtocolType.MIDI2) MidiCIProtocolType.MIDI1 else MidiCIProtocolType.MIDI2
+        midiProtocol.value = if (midiProtocol.value == MidiTransportProtocol.UMP) MidiTransportProtocol.MIDI1 else MidiTransportProtocol.UMP
 
         // Generate a MIDI CI Set New Protocol Message...
 

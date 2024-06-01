@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import dev.atsushieno.ktmidi.GeneralMidi2
 import dev.atsushieno.ktmidi.MidiCIProtocolType
 import androidx.compose.ui.graphics.Color
+import dev.atsushieno.ktmidi.MidiTransportProtocol
 
 @Composable
 fun App(kmmk: KmmkComponentContext) {
@@ -213,7 +214,7 @@ fun MmlPad(kmmk: KmmkComponentContext) {
             // These click handlers look like duplicates, but only either of Modifier.clickable or Checkbox.onCheckedChange is invoked...
             Row(modifier = Modifier.padding(6.dp).clickable { kmmk.onMidiProtocolUpdated() }) {
                 Checkbox(
-                    checked = kmmk.midiProtocol.value == MidiCIProtocolType.MIDI2,
+                    checked = kmmk.midiProtocol.value == MidiTransportProtocol.UMP,
                     onCheckedChange = { kmmk.onMidiProtocolUpdated() })
                 Text("MIDI 2.0")
             }
