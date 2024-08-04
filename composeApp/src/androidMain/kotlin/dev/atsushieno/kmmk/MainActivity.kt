@@ -1,5 +1,6 @@
 package dev.atsushieno.kmmk
 
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -7,6 +8,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import dev.atsushieno.ktmidi.AndroidMidi2Access
 import dev.atsushieno.ktmidi.AndroidMidiAccess
 import kotlin.system.exitProcess
 
@@ -15,7 +17,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val kmmk = KmmkComponentContext()
-        kmmk.midiDeviceManager.midiAccess = AndroidMidiAccess(applicationContext)
+        kmmk.midiDeviceManager.midiAccess =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                AndroidMidi2Access(applicationContext, true)
+            else
+                AndroidMidiAccess(applicationContext)
         setContent {
             App(kmmk)
         }
