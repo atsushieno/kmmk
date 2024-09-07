@@ -11,12 +11,12 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalWasmDsl::class)
+    @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "composeApp"
+        moduleName = "kmmk"
         browser {
             commonWebpackConfig {
-                outputFileName = "composeApp.js"
+                outputFileName = "kmmk.js"
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
                     static = (static ?: mutableListOf()).apply {
                         // Serve sources to debug inside browser
@@ -74,6 +74,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.ktmidi.jvm.desktop)
             api(libs.rtmidi.javacpp.platform)
+            api(libs.libremidi.javacpp.platform)
         }
     }
 }
