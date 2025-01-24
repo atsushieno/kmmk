@@ -9,6 +9,8 @@ Here are the basics: it receives either keyboard inputs, mouse clicks or touch i
 
 Kmmk makes use of Kotlin Multiplatform and Jetpack Compose, and should run on Android and desktop i.e. Linux, Mac and most likely Windows (not verified).
 
+You can try the wasm version in action: https://atsushieno.github.io/kmmk/
+
 ## Features
 
 Kmmk has various features.
