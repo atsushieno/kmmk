@@ -50,3 +50,9 @@ jobs:
           composeApp/build/compose/binaries/main/deb/*.deb
           composeApp/build/compose/binaries/main/dmg/*.dmg
           composeApp/build/compose/binaries/main/msi/*.msi
+    - name: deploy to GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@4.1.2
+      if: contains(matrix.os, 'ubuntu')
+      with:
+        branch: gh-pages
+        folder: composeApp/build/dist/wasmJs/productionExecutable
