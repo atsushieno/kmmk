@@ -34,6 +34,8 @@ class MidiDeviceManager {
         }
     }
 
+    var midiTransportProtocol = MidiTransportProtocol.MIDI1
+
     var midiAccess: MidiAccess
         get() = midiAccessValue
         set(value) {
@@ -45,30 +47,53 @@ class MidiDeviceManager {
                         applicationName = "Kmmk",
                         portName = "Kmmk Virtual Out Port",
                         version = "1.0",
-                        //midiProtocol = MidiCIProtocolType.MIDI2, // if applicable
-                        //umpGroup = 1
+                        midiProtocol = MidiTransportProtocol.MIDI1
                     )
                     val pcOut = PortCreatorContext(
                         manufacturer = "Kmmk project",
                         applicationName = "Kmmk",
                         portName = "Kmmk Virtual In Port",
                         version = "1.0",
-                        //midiProtocol = MidiCIProtocolType.MIDI2, // if applicable
-                        //umpGroup = 2
+                        midiProtocol = MidiTransportProtocol.MIDI1
                     )
-                    virtualMidiInput = midiAccessValue.createVirtualOutputReceiver(pcOut)
-                    virtualMidiInput!!.setMessageReceivedListener { data, start, length, timestampInNanoseconds ->
-                        if (data[start] == Midi1Status.SYSEX.toByte()) {
-                            device.processInput(0, data.drop(start + 1).take(length - 2))
-                            return@setMessageReceivedListener
+                    virtualMidiInput = midiAccessValue.createVirtualOutputReceiver(pcOut).also {
+                        it.setMessageReceivedListener { data, start, length, timestampInNanoseconds ->
+                            if (data[start] == Midi1Status.SYSEX.toByte()) {
+                                device.processInput(0, data.drop(start + 1).take(length - 2))
+                                return@setMessageReceivedListener
+                            }
+                            sendToAll(data.drop(start).take(length).toByteArray(), timestampInNanoseconds)
                         }
-
-                        val s = data.drop(start).take(length).joinToString(" ") {
-                            it.toString(16)
-                        }
-                        sendToAll(data.drop(start).take(length).toByteArray(), timestampInNanoseconds)
                     }
                     virtualMidiOutput = midiAccessValue.createVirtualInputSender(pcIn)
+
+                    val pcIn2 = PortCreatorContext(
+                        manufacturer = "Kmmk project",
+                        applicationName = "Kmmk",
+                        portName = "Kmmk Virtual Out UMP Port",
+                        version = "1.0",
+                        midiProtocol = MidiTransportProtocol.UMP,
+                        umpGroup = 1
+                    )
+                    val pcOut2 = PortCreatorContext(
+                        manufacturer = "Kmmk project",
+                        applicationName = "Kmmk",
+                        portName = "Kmmk Virtual In UMP Port",
+                        version = "1.0",
+                        midiProtocol = MidiTransportProtocol.UMP,
+                        umpGroup = 2
+                    )
+                    virtualMidiInput2 = midiAccessValue.createVirtualOutputReceiver(pcOut2).also {
+                        it.setMessageReceivedListener { data, start, length, timestampInNanoseconds ->
+                            // FIXME: implement
+                            /*if (data[start] == Midi1Status.SYSEX.toByte()) {
+                                device.processInput(0, data.drop(start + 1).take(length - 2))
+                                return@setMessageReceivedListener
+                            }*/
+                            sendToAll(data.drop(start).take(length).toByteArray(), timestampInNanoseconds)
+                        }
+                    }
+                    virtualMidiOutput2 = midiAccessValue.createVirtualInputSender(pcIn2)
                 } catch (ex: Exception) {
                     println("Failed to create virtual ports (should not be critical). Details:")
                     println(ex)
@@ -79,31 +104,25 @@ class MidiDeviceManager {
     val midiInputPorts : Iterable<MidiPortDetails>
         get() = midiAccess.inputs
     val midiOutputPorts : Iterable<MidiPortDetails>
-        get() = midiAccess.outputs
+        get() = midiAccess.outputs.toList().filter { it.midiTransportProtocol == midiTransportProtocol }
 
-    var midiInputDeviceId: String?
-        get() = midiInput?.details?.id
-        set(id) {
-            GlobalScope.launch {
-                val old = midiInput
-                midiInput = if (id != null) midiAccessValue.openInput(id) else return@launch
-                old?.close()
-                midiInputOpened()
-            }
-        }
+    suspend fun setMidiInputDeviceId(id: String?) {
+        midiInput?.close()
+        if (id == null)
+            return
+        midiInput = midiAccessValue.openInput(id)
+        midiInputOpened()
+    }
 
-    var midiOutputDeviceId: String?
-        get() = midiOutput?.details?.id
-        set(id) {
-            GlobalScope.launch {
-                val old = midiOutput
-                midiOutput = if (id != null) midiAccessValue.openOutput(id) else return@launch
-                old?.close()
-                midiOutputError.value = null
-                virtualMidiOutputError.value = null
-                midiOutputOpened()
-            }
-        }
+    suspend fun setMidiOutputDeviceId (id: String?) {
+        midiOutput?.close()
+        if (id == null)
+            return
+        midiOutput = midiAccessValue.openOutput(id)
+        midiOutputError.value = null
+        virtualMidiOutputError.value = null
+        midiOutputOpened()
+    }
 
     var midiInputOpened : () -> Unit = {}
     var midiOutputOpened : () -> Unit = {}
@@ -112,6 +131,8 @@ class MidiDeviceManager {
     var midiOutput: MidiOutput? = null
     var virtualMidiOutput: MidiOutput? = null
     var virtualMidiInput: MidiInput? = null
+    var virtualMidiOutput2: MidiOutput? = null
+    var virtualMidiInput2: MidiInput? = null
 
     var midiOutputError = mutableStateOf<Exception?>(null)
     var virtualMidiOutputError = mutableStateOf<Exception?>(null)
@@ -124,8 +145,10 @@ class MidiDeviceManager {
             midiOutputError.value = ex
         }
         try {
-            if (virtualMidiOutputError.value == null)
+            if (midiTransportProtocol == MidiTransportProtocol.MIDI1 && virtualMidiOutputError.value == null)
                 virtualMidiOutput?.send(bytes, 0, bytes.size, timestamp)
+            //if (midiTransportProtocol == MidiTransportProtocol.UMP && virtualMidiOutputError.value == null)
+            //    virtualMidiOutput2?.send(bytes, 0, bytes.size, timestamp)
         } catch (ex: Exception) {
             virtualMidiOutputError.value = ex
         }

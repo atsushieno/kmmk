@@ -199,8 +199,12 @@ class KmmkComponentContext {
         return -1
     }
 
-    fun setOutputDevice(id: String) {
-        midiDeviceManager.midiOutputDeviceId = id
+    suspend fun setInputDevice(id: String?) {
+        midiDeviceManager.setMidiInputDeviceId(id)
+    }
+
+    suspend fun setOutputDevice(id: String?) {
+        midiDeviceManager.setMidiOutputDeviceId(id)
     }
 
     fun playMml(mml: String, playOnInput: Boolean) {
@@ -223,23 +227,16 @@ class KmmkComponentContext {
 
     fun onMidiProtocolUpdated() {
         midiProtocol.value = if (midiProtocol.value == MidiTransportProtocol.UMP) MidiTransportProtocol.MIDI1 else MidiTransportProtocol.UMP
-
-        // Generate a MIDI CI Set New Protocol Message...
-
-        val ump = UmpFactory.streamConfigRequest(MidiCIProtocolValue.MIDI2_V1.toByte(), false, false)
-        val bytes = ump.toPlatformNativeBytes().toMutableList()
-
-
-        // ...and send it in MIDI2 UMP.
-        val umpInBytes = mutableListOf<Byte>()
-        UmpFactory.sysex7Process(0, bytes) { l, _ ->
-            umpInBytes.addAll(Ump(l).toPlatformNativeBytes().toTypedArray())
-        }
-        sendToAll(umpInBytes.toByteArray(), 0)
+        midiDeviceManager.midiTransportProtocol = midiProtocol.value
     }
 
     fun updateMidiDeviceList() {
         midiOutputPorts.clear()
         midiOutputPorts.addAll(midiDeviceManager.midiOutputPorts)
+    }
+
+    suspend fun closeAllPorts() {
+        setInputDevice(null)
+        setOutputDevice(null)
     }
 }

@@ -5,3 +5,4 @@ alsakt-javacpp/src/main/java/dev/atsushieno/alsakt/javacpp
 local.properties
 .DS_Store
 .kotlin
+iosApp/iosApp.xcodeproj

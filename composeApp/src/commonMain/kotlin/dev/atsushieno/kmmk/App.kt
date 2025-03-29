@@ -10,11 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,6 +18,7 @@ import dev.atsushieno.ktmidi.GeneralMidi2
 import dev.atsushieno.ktmidi.MidiCIProtocolType
 import androidx.compose.ui.graphics.Color
 import dev.atsushieno.ktmidi.MidiTransportProtocol
+import kotlinx.coroutines.launch
 
 @Composable
 fun App(kmmk: KmmkComponentContext) {
@@ -45,6 +42,7 @@ fun App(kmmk: KmmkComponentContext) {
 
 @Composable
 fun AppSettingsView(kmmk: KmmkComponentContext) {
+    val coroutineScope = rememberCoroutineScope()
 
     Column {
         Row {
@@ -59,9 +57,15 @@ fun AppSettingsView(kmmk: KmmkComponentContext) {
             }
         }
         Row {
-            Column {
-                MidiDeviceSelector(kmmk)
-            }
+            // These click handlers look like duplicates, but only either of Modifier.clickable or Checkbox.onCheckedChange is invoked...
+            Checkbox(
+                checked = kmmk.midiProtocol.value == MidiTransportProtocol.UMP,
+                onCheckedChange = {
+                    kmmk.onMidiProtocolUpdated()
+                    coroutineScope.launch { kmmk.closeAllPorts() }
+                })
+            Text("MIDI 2.0", Modifier.align(Alignment.CenterVertically))
+            MidiDeviceSelector(kmmk)
             Column {
                 val midiOutputError by remember { kmmk.midiDeviceManager.midiOutputError }
                 if (midiOutputError != null) {
@@ -88,9 +92,9 @@ fun AppSettingsView(kmmk: KmmkComponentContext) {
                     }
                 }
             }
-            Column {
+            Column(Modifier.align(Alignment.CenterVertically)) {
                 Text(text = "Oct.: ${kmmk.octaveShift.value} / Trans.: ${kmmk.noteShift.value}",
-                    modifier = Modifier.padding(12.dp))
+                    modifier = Modifier.padding(12.dp, 0.dp))
             }
         }
     }
@@ -99,16 +103,18 @@ fun AppSettingsView(kmmk: KmmkComponentContext) {
 @Composable
 fun MidiDeviceSelector(kmmk: KmmkComponentContext) {
     var midiOutputDialogState by remember { mutableStateOf(false) }
+    val coroutineContext = rememberCoroutineScope()
 
-    DropdownMenu(expanded = midiOutputDialogState, onDismissRequest = { midiOutputDialogState = false}) {
+    DropdownMenu(expanded = midiOutputDialogState, onDismissRequest = { midiOutputDialogState = false }) {
         val onClick: (String) -> Unit = { id ->
             if (id.isNotEmpty()) {
-                kmmk.setOutputDevice(id)
+                coroutineContext.launch { kmmk.setOutputDevice(id) }
             }
             midiOutputDialogState = false
         }
-        if (kmmk.midiOutputPorts.any())
-            for (d in kmmk.midiOutputPorts)
+        val outputPorts = kmmk.midiOutputPorts
+        if (outputPorts.any())
+            for (d in outputPorts)
                 DropdownMenuItem(onClick = { onClick(d.id) }) {
                     Text(d.name ?: "(unnamed)")
                 }
@@ -123,7 +129,9 @@ fun MidiDeviceSelector(kmmk: KmmkComponentContext) {
         }).padding(12.dp),
         border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
     ) {
-        Text(kmmk.midiDeviceManager.midiOutput?.details?.name ?: "-- Select MIDI output --")
+        val name = if (kmmk.midiDeviceManager.midiOutput?.details?.midiTransportProtocol == kmmk.midiProtocol.value)
+            kmmk.midiDeviceManager.midiOutput?.details?.name else null
+        Text(name ?: "-- Select MIDI output --")
     }
 }
 
@@ -211,13 +219,6 @@ fun KeyboardLayoutSelector(kmmk: KmmkComponentContext) {
 fun MmlPad(kmmk: KmmkComponentContext) {
     Column {
         Row {
-            // These click handlers look like duplicates, but only either of Modifier.clickable or Checkbox.onCheckedChange is invoked...
-            Row(modifier = Modifier.padding(6.dp).clickable { kmmk.onMidiProtocolUpdated() }) {
-                Checkbox(
-                    checked = kmmk.midiProtocol.value == MidiTransportProtocol.UMP,
-                    onCheckedChange = { kmmk.onMidiProtocolUpdated() })
-                Text("MIDI 2.0")
-            }
             val onRecordMmlChecked = {
                 kmmk.shouldRecordMml.value = !kmmk.shouldRecordMml.value
             }
