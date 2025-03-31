@@ -10,7 +10,7 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(22)
+    jvmToolchain(11)
 
     @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
@@ -101,11 +101,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+        coreLibraryDesugaring(libs.desugar.jdk.libs)
     }
 }
 
