@@ -9,13 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.atsushieno.ktmidi.GeneralMidi2
-import dev.atsushieno.ktmidi.MidiCIProtocolType
 import androidx.compose.ui.graphics.Color
 import dev.atsushieno.ktmidi.MidiTransportProtocol
 import kotlinx.coroutines.launch
@@ -115,19 +114,19 @@ fun MidiDeviceSelector(kmmk: KmmkComponentContext) {
         val outputPorts = kmmk.midiOutputPorts
         if (outputPorts.any())
             for (d in outputPorts)
-                DropdownMenuItem(onClick = { onClick(d.id) }) {
+                DropdownMenuItem(onClick = { onClick(d.id) }, text = {
                     Text(d.name ?: "(unnamed)")
-                }
+                })
         else
-            DropdownMenuItem(onClick = { onClick("") }) { Text("(no MIDI output)") }
-        DropdownMenuItem(onClick = { onClick("") }) { Text("(Cancel)") }
+            DropdownMenuItem(onClick = { onClick("") }, text = { Text("(no MIDI output)") })
+        DropdownMenuItem(onClick = { onClick("") }, text = { Text("(Cancel)") })
     }
     Card(
         modifier = Modifier.clickable(onClick = {
             kmmk.updateMidiDeviceList()
             midiOutputDialogState = true
         }).padding(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
     ) {
         val name = if (kmmk.midiDeviceManager.midiOutput?.details?.midiTransportProtocol == kmmk.midiProtocol.value)
             kmmk.midiDeviceManager.midiOutput?.details?.name else null
@@ -151,22 +150,22 @@ fun ProgramSelector(kmmk: KmmkComponentContext) {
             }
             GeneralMidi2.instrumentNames.drop(programCategoryState * 8).take(8).forEachIndexed { index, program ->
                 val programValue = programCategoryState * 8 + index
-                DropdownMenuItem(onClick = { onSelectProgram(programValue) }) { Text("${programValue}: $program") }
+                DropdownMenuItem(onClick = { onSelectProgram(programValue) }, text = { Text("${programValue}: $program") })
             }
-            DropdownMenuItem(onClick = { onSelectProgram(-2) }) { Text("(Back)") }
+            DropdownMenuItem(onClick = { onSelectProgram(-2) }, text = { Text("(Back)") })
         } else {
             val onSelectCategory: (Int) -> Unit = { category ->
                 programCategoryState = category
                 programCategoryDialogState = false
             }
             GeneralMidi2.categories.forEachIndexed { index, category ->
-                DropdownMenuItem(onClick = { onSelectCategory(index) }) { Text("${index * 8}: $category") }
+                DropdownMenuItem(onClick = { onSelectCategory(index) }, text = { Text("${index * 8}: $category") })
             }
         }
     }
     Card(
         modifier = Modifier.clickable(onClick = { programCategoryDialogState = true }).padding(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
     ) {
         Text(GeneralMidi2.instrumentNames[kmmk.program.value])
     }
@@ -183,11 +182,11 @@ fun TonalitySelector(kmmk: KmmkComponentContext) {
 
     DropdownMenu(expanded = tonalityDialogState, onDismissRequest = { tonalityDialogState = false}) {
         kmmk.tonalities.forEachIndexed { index, tonality ->
-            DropdownMenuItem(onClick = { onTonalitySelected(index) }) { Text(tonality.name) }
+            DropdownMenuItem(onClick = { onTonalitySelected(index) }, text = { Text(tonality.name) })
         }
     }
     Card(modifier = Modifier.clickable { tonalityDialogState = true }.padding(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
     ) {
         Text(text = kmmk.tonalities[kmmk.selectedTonality.value].name)
     }
@@ -204,17 +203,16 @@ fun KeyboardLayoutSelector(kmmk: KmmkComponentContext) {
 
     DropdownMenu(expanded = keyboardDialogState, onDismissRequest = { keyboardDialogState = false}) {
         kmmk.keyboards.forEachIndexed { index, keyboard ->
-            DropdownMenuItem(onClick = { onKeyboardSelected(index) }) { Text(text = keyboard.name) }
+            DropdownMenuItem(onClick = { onKeyboardSelected(index) }, text = { Text(text = keyboard.name) })
         }
     }
     Card(modifier = Modifier.clickable { keyboardDialogState = true }.padding(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colors.primaryVariant)
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
     ) {
         Text(text = kmmk.keyboards[kmmk.selectedKeyboard.value].name)
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MmlPad(kmmk: KmmkComponentContext) {
     Column {

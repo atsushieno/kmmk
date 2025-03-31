@@ -5,14 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -27,8 +23,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
@@ -71,11 +65,12 @@ fun KeyboardRow(kmmk: KmmkComponentContext, octave: Int) {
 
             TextButton(interactionSource = interactionSource,
                 modifier = Modifier.padding(keyPaddingWidth).height(30.dp).weight(1.0f),
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
                 colors = ButtonDefaults.textButtonColors(
                     // FIXME: it is a compromised solution to the situation that Modifier.border() never worked
                     //  as expected to correctly surround the button region... We specify non-White color for
                     //  the white keys indicating that it is in different color than the background
-                    backgroundColor = if (kmmk.noteOnStates[note] > 0) Color.Cyan
+                    containerColor = if (kmmk.noteOnStates[note] > 0) Color.Cyan
                     else if (isWhiteKey(key)) Color.White/*.compositeOver(Color.Gray)*/ else Color.DarkGray,
                     contentColor = if (kmmk.noteOnStates[note] > 0) Color.Black
                     else if (isWhiteKey(key)) Color.DarkGray else Color.White
