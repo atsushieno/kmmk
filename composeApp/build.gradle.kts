@@ -10,6 +10,8 @@ plugins {
 }
 
 kotlin {
+    jvmToolchain(22)
+
     @OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
     wasmJs {
         moduleName = "kmmk"
