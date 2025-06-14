@@ -9,7 +9,7 @@ import dev.atsushieno.ktmidi.*
 fun main(args: Array<String>) = application {
     val kmmk = KmmkComponentContext()
     kmmk.midiDeviceManager.midiAccess =
-        if (/*args.contains("jvm")*/true) JvmMidiAccess()
+        if (args.contains("jvm")) JvmMidiAccess()
         else if (args.contains("alsa")) AlsaMidiAccess()
         else if (args.contains("rtmidi")) RtMidiAccess()
         else if (System.getProperty("os.name").contains("Windows"))
